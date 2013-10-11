@@ -3,7 +3,7 @@
 //  Spine-Spritekit-Demo
 //
 
-//  Copyright (c) 2013년 DZPub.com. All rights reserved.
+//  Copyright (c) 2013 DZPub.com. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

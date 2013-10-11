@@ -3,7 +3,7 @@
 //  Spine-Spritekit-Demo
 //
 //  Created by Simon Kim on 13. 10. 11..
-//  Copyright (c) 2013년 DZPub.com. All rights reserved.
+//  Copyright (c) 2013 DZPub.com. All rights reserved.
 //
 
 #import "DZMyScene.h"
