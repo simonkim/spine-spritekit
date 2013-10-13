@@ -27,11 +27,15 @@ void _spine_adapt_disposeTexture( void * rendobj );
 @property (nonatomic, strong) NSString *animationName;
 @property (nonatomic) CGFloat scaleSkeleton;
 @property (nonatomic, readonly) NSMutableDictionary *mapBoneToNode;
+@property (nonatomic, readonly) NSMutableDictionary *mapSlotToNode;
+@property (nonatomic, readonly) NSMutableDictionary *mapOverrideSlotToAttachment;
 @property (nonatomic) BOOL buildDebuggingNodes;
 @end
 
 @implementation DZSpineScene
 @synthesize mapBoneToNode = _mapBoneToNode;
+@synthesize mapSlotToNode = _mapSlotToNode;
+@synthesize mapOverrideSlotToAttachment = _mapOverrideSlotToAttachment;
 
 - (id) initWithSize:(CGSize)size skeletonName:(NSString *) skeletonName animationName:(NSString *) animationName scale:(CGFloat) scale
 {
@@ -52,6 +56,22 @@ void _spine_adapt_disposeTexture( void * rendobj );
         _mapBoneToNode = [NSMutableDictionary dictionary];
     }
     return _mapBoneToNode;
+}
+
+- (NSMutableDictionary *) mapSlotToNode
+{
+    if ( _mapSlotToNode == nil ) {
+        _mapSlotToNode = [NSMutableDictionary dictionary];
+    }
+    return _mapSlotToNode;
+}
+
+- (NSMutableDictionary *) mapOverrideSlotToAttachment
+{
+    if ( _mapOverrideSlotToAttachment == nil ) {
+        _mapOverrideSlotToAttachment = [NSMutableDictionary dictionary];
+    }
+    return _mapOverrideSlotToAttachment;
 }
 
 - (SpineSkeleton *) loadSkeletonName:(NSString *) name scale:(CGFloat) scale
@@ -236,6 +256,8 @@ void _spine_adapt_disposeTexture( void * rendobj );
     }
     NSLog(@"Animation:%@", animationName);
     
+    [self.mapBoneToNode removeAllObjects];
+    
     SpineBone *bone = [skeleton boneWithName:@"root"];
     if (bone) {
         // update root position
@@ -244,11 +266,12 @@ void _spine_adapt_disposeTexture( void * rendobj );
         root.position = center;
         
         // build children nodes
-        [self.mapBoneToNode removeAllObjects];
         self.mapBoneToNode[@"root"] = root;
+        
         [self buildChildNodesForBone:bone parentNode:root animation:animation];
     }
     
+    [self.mapSlotToNode removeAllObjects];
     // Attachments to Slots
     [[skeleton slots] enumerateObjectsUsingBlock:^(SpineSlot *slot, NSUInteger idx, BOOL *stop) {
         if ( slot.attachment ) {
@@ -259,13 +282,20 @@ void _spine_adapt_disposeTexture( void * rendobj );
                       NSStringFromCGRect(slot.attachment.rectInAtlas));
                 
                 
-                NSString *atlasName = (__bridge NSString *) slot.attachment.rendererObject;
-                SKTexture *textureAtlas = [[DZSpineTexturePool sharedPool] textureAtlasWithName:atlasName];
-                
-                // Reverse y axis
+                NSString *atlasName = nil;;
                 CGRect rect = slot.attachment.rectInAtlas;
-                rect.origin.y = 1 - rect.origin.y;
+                NSDictionary *override = self.mapOverrideSlotToAttachment[slot.name];
+                if ( override ) {
+                    atlasName = override[@"textureName"];
+                    rect = CGRectFromString(override[@"rectInAtlas"]);
+                } else {
+                    atlasName = (__bridge NSString *) slot.attachment.rendererObject;
+                    rect = slot.attachment.rectInAtlas;
+                    // Reverse y axis
+                    rect.origin.y = 1 - rect.origin.y;
+                }
                 
+                SKTexture *textureAtlas = [[DZSpineTexturePool sharedPool] textureAtlasWithName:atlasName];
                 SKTexture *texture = [SKTexture textureWithRect:rect inTexture:textureAtlas];
                 SKSpriteNode *sprite = [SKSpriteNode spriteNodeWithTexture:texture];
                 [[self class] applyGeometry:slot.attachment.geometry toNode:sprite];
@@ -279,11 +309,27 @@ void _spine_adapt_disposeTexture( void * rendobj );
                     sprite.zRotation += -M_PI/2;
                 }
                 [node addChild:sprite];
+                
+                self.mapSlotToNode[slot.name] = sprite;
             }
         }
     }];
     
     return root;
+}
+
+- (void) setTextureName:(NSString *) textureName rect:(CGRect) rect toSlot:(NSString *) slotName
+{
+    // Override before build sprite tree
+    self.mapOverrideSlotToAttachment[slotName] = @{ @"textureName" : textureName, @"rectInAtlas" : NSStringFromCGRect(rect) };
+    
+    // Runtime sprite replacement
+    SKSpriteNode *sprite = self.mapSlotToNode[slotName];
+    if ( sprite) {
+        SKTexture *textureAtlas = [[DZSpineTexturePool sharedPool] textureAtlasWithName:textureName];
+        SKTexture *texture = [SKTexture textureWithRect:rect inTexture:textureAtlas];
+        sprite.texture = texture;
+    }
 }
 
 - (SKLabelNode *)signatureLabelNode
