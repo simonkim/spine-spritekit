@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F45213F8180A41D100D8BD26 /* goblinhead4spineboy.png in Resources */ = {isa = PBXBuildFile; fileRef = F45213F7180A41D100D8BD26 /* goblinhead4spineboy.png */; };
 		F4F8DA6E18080E1100F2C744 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F8DA6D18080E1100F2C744 /* Foundation.framework */; };
 		F4F8DA7018080E1100F2C744 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F8DA6F18080E1100F2C744 /* CoreGraphics.framework */; };
 		F4F8DA7218080E1100F2C744 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F8DA7118080E1100F2C744 /* UIKit.framework */; };
@@ -78,6 +79,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F45213F7180A41D100D8BD26 /* goblinhead4spineboy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = goblinhead4spineboy.png; sourceTree = "<group>"; };
 		F4F8DA6A18080E1100F2C744 /* Spine-Spritekit-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spine-Spritekit-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F8DA6D18080E1100F2C744 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F4F8DA6F18080E1100F2C744 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -204,9 +206,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F45213F6180A41D100D8BD26 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				F45213F7180A41D100D8BD26 /* goblinhead4spineboy.png */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
 		F4F8DA6118080E1100F2C744 = {
 			isa = PBXGroup;
 			children = (
+				F45213F6180A41D100D8BD26 /* Images */,
 				F4F8DCE318081A1E00F2C744 /* Resources */,
 				F4F8DC7C1808176700F2C744 /* spine-c */,
 				F4F8DC561808175500F2C744 /* spine-spritekit */,
@@ -501,6 +512,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F45213F8180A41D100D8BD26 /* goblinhead4spineboy.png in Resources */,
 				F4F8DA8E18080E1200F2C744 /* Spaceship.png in Resources */,
 				F4F8DA9018080E1200F2C744 /* Images.xcassets in Resources */,
 				F4F8DA8618080E1200F2C744 /* Main_iPad.storyboard in Resources */,
@@ -802,6 +814,7 @@
 				F4F8DAA818080E1200F2C744 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F4F8DAA918080E1200F2C744 /* Build configuration list for PBXNativeTarget "Spine-Spritekit-DemoTests" */ = {
 			isa = XCConfigurationList;
@@ -810,6 +823,7 @@
 				F4F8DAAB18080E1200F2C744 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

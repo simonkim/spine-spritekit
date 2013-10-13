@@ -21,10 +21,13 @@
     skView.showsNodeCount = YES;
     
     // Create and configure the scene.
-    SKScene * scene = [[DZSpineScene alloc] initWithSize:skView.bounds.size
+    DZSpineScene * scene = [[DZSpineScene alloc] initWithSize:skView.bounds.size
                                              skeletonName:@"spineboy"
                                            animationName:@"walk"
                                                    scale:1];
+    
+    // Replace spinboy's head attachment with a bundle image: goblin's head for test
+    [scene setTextureName:@"goblinhead4spineboy" rect:CGRectMake(0, 0, 1, 1) toSlot:@"head"];
     scene.scaleMode = SKSceneScaleModeAspectFill;
     
     // Present the scene.
