@@ -19,19 +19,6 @@
     [result setSize:CGSizeMake(rattach->width, rattach->height)];
     [result setRendererObject:((spAtlasRegion*)rattach->rendererObject)->page->rendererObject];
     
-    /*
-    CGRect rect;
-    float *uvs = rattach->uvs;
-    if ( uvs[VERTEX_X3] - uvs[VERTEX_X2] == 0) {
-        // rotated
-        rect.origin = CGPointMake(uvs[VERTEX_X3] * atlas_width, uvs[VERTEX_Y3] * atlas_height);
-        rect.size = CGSizeMake((uvs[VERTEX_X1] - uvs[VERTEX_X2]) * atlas_width, (uvs[VERTEX_Y2] - uvs[VERTEX_Y3]) * atlas_height);
-    } else {
-        rect.origin = CGPointMake(uvs[VERTEX_X2] * atlas_width, uvs[VERTEX_Y2] * atlas_height);
-        rect.size = CGSizeMake((uvs[VERTEX_X3] - uvs[VERTEX_X2]) * atlas_width, (uvs[VERTEX_Y1] - uvs[VERTEX_Y2]) * atlas_height);
-    }
-    NSLog(@"%@", NSStringFromCGRect(rect));
-     */
     return result;
 }
 

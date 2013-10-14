@@ -15,8 +15,8 @@
 @property (nonatomic, copy, readonly) NSArray *bones;
 @property (nonatomic, copy, readonly) NSArray *slots;
 @property (nonatomic, copy, readonly) NSArray *animations;
-@property (nonatomic, strong) NSString *atlasName;
-@property (nonatomic) CGSize atlasSize;
+@property (nonatomic, copy, readonly) NSArray *animationNames;
+@property (nonatomic, readonly) CGFloat scale;
 
 - (void) addSlot:(SpineSlot *) slot;
 - (void) addBone:(SpineBone *) bone;

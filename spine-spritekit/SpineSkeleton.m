@@ -15,6 +15,7 @@
 @property (nonatomic, readonly) NSMutableDictionary *bonesDictionary;
 @property (nonatomic, readonly) NSMutableArray *manimations;
 @property (nonatomic, readonly) NSMutableDictionary *animationMap;
+@property (nonatomic) CGFloat scale;
 @end
 
 @implementation SpineSkeleton
@@ -23,6 +24,7 @@
 @synthesize bonesDictionary = _bonesDictionary;
 @synthesize manimations = _manimations;
 @synthesize animationMap = _animationMap;
+@synthesize animationNames = _animationNames;
 
 #pragma makr - Properties
 - (NSArray *) slots
@@ -38,6 +40,18 @@
 - (NSArray *) animations
 {
     return [self.manimations copy];
+}
+
+- (NSArray *) animationNames
+{
+    if ( _animationNames == nil ) {
+        NSMutableArray *names = [NSMutableArray array];
+        [self.manimations enumerateObjectsUsingBlock:^(SpineAnimation *animation, NSUInteger idx, BOOL *stop) {
+            [names addObject:animation.name];
+        }];
+        _animationNames = [names copy];
+    }
+    return _animationNames;
 }
 
 - (NSMutableArray *) mslots
@@ -105,6 +119,9 @@
     if ( self.animationMap[animation.name] == nil) {
         [self.manimations addObject:animation];
         self.animationMap[animation.name] = animation;
+        
+        // trigger enumerate again next time animationNames property access
+        _animationNames = nil;
     }
 }
 
@@ -115,7 +132,9 @@
 
 + (id) skeletonWithName:(NSString *) name atlasName:(NSString *) atlasName scale:(CGFloat) scale
 {
-    return [DZSpineLoader skeletonWithName:name atlasName:atlasName scale:scale animationName:nil];
+    id skeleton = [DZSpineLoader skeletonWithName:name atlasName:atlasName scale:scale animationName:nil];
+    [skeleton setScale:scale];
+    return skeleton;
 }
 
 @end

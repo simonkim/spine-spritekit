@@ -156,19 +156,26 @@ int spine_dispose( struct spinecontext *ctx)
 
 #pragma mark - Spine Adaptation
 void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
-    printf("%s[%d]: path='%s'\n", __FUNCTION__, __LINE__, path);
-    if ( _callback_createTexture != 0 )
+    if ( _callback_createTexture != 0 ) {
+        printf("%s[%d]: Creating a Texture at path='%s'\n", __FUNCTION__, __LINE__, path);
         self->rendererObject = _callback_createTexture(path, &self->width, &self->height);
+    } else {
+        printf("%s[%d]: Error did call spine_set_handler_createtexture()?\n", __FUNCTION__, __LINE__);
+    }
 }
 
 void _spAtlasPage_disposeTexture (spAtlasPage* self) {
     if ( _callback_disposeTexture != 0) {
         _callback_disposeTexture(self->rendererObject);
+        self->rendererObject = 0;
+    } else {
+        printf("%s[%d]: Error did call spine_set_handler_disposetexture()?\n", __FUNCTION__, __LINE__);
     }
 }
 
 char* _spUtil_readFile (const char* path, int* length) {
-	return _readFile([[[NSBundle mainBundle] pathForResource:@(path) ofType:nil] UTF8String], length);
+    NSString *bundlePath = [[NSBundle mainBundle] pathForResource:@(path) ofType:nil];
+	return _readFile([bundlePath UTF8String], length);
 }
 
 void spine_set_handler_createtexture(spine_adapt_createtexture_t handler)

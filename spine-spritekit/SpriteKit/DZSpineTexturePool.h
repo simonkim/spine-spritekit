@@ -14,6 +14,7 @@
 
 - (SKTexture *) textureAtlasWithName:(NSString *) name;
 - (void) unloadTextAtlasWithName:(NSString *) name;
+- (void) unloadAll;
 
 + (id) sharedPool;
 @end

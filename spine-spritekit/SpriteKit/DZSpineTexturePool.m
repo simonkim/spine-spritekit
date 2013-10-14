@@ -41,7 +41,6 @@
 
 - (SKTexture *) textureAtlasWithName:(NSString *) name
 {
-    
     SKTexture *texture = self.mapTextures[name];
     if (texture == nil ) {
         texture = [SKTexture textureWithImageNamed:name];
@@ -58,6 +57,12 @@
 {
     [self.mapTextures removeObjectForKey:name];
     [self.mnames removeObject:name];
+}
+
+- (void) unloadAll
+{
+    [self.mapTextures removeAllObjects];
+    [self.mnames removeAllObjects];
 }
 
 + (id) sharedPool

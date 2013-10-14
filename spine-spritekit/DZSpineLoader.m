@@ -106,9 +106,6 @@
     spSkeleton_updateWorldTransform(skeleton);
     
     result = [[SpineSkeleton alloc] init];
-    // Atlas
-    [result setAtlasName:@(ctx.atlas->pages->name)];
-    [result setAtlasSize:CGSizeMake(ctx.atlas->pages->width, ctx.atlas->pages->height)];
     
     // Animations
     for (int i = 0, n = ctx.skeletonData->animationCount; i < n; i++) {

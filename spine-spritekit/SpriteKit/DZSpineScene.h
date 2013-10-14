@@ -9,7 +9,9 @@
 #import <SpriteKit/SpriteKit.h>
 
 @interface DZSpineScene : SKScene
+@property (nonatomic, readonly) SKNode *rootNode;
 
+- (id) initWithSize:(CGSize)size;
 - (id) initWithSize:(CGSize)size skeletonName:(NSString *) skeletonName animationName:(NSString *) animationName scale:(CGFloat) scale;
 
 /*
