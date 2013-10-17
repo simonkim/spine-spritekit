@@ -19,9 +19,11 @@ extern NSString *kSpineSequenceTypeBonesRotate;
 extern NSString *kSpineSequenceTypeBonesScale;
 extern NSString *kSpineSequenceTypeSlotsAtachment;
 extern NSString *kSpineSequenceTypeSlotsColor;
+extern NSString *kSpineSequenceTypeSDummy;
 
-@interface SpineSequence : NSObject
+@interface SpineSequence : NSObject <NSCopying>
 @property (nonatomic, strong) NSString *type;   // translate, rotate, scale, slot, event, draworder
+@property (nonatomic) BOOL dummy;               // dummy sequence that does nothing for duration (until the time)
 @property (nonatomic) NSTimeInterval time;
 @property (nonatomic) NSTimeInterval duration;
 // curve: linear, stepped, cx1, cx2, cy1, cy2
@@ -30,6 +32,8 @@ extern NSString *kSpineSequenceTypeSlotsColor;
 @property (nonatomic) CGPoint bezier2;
 
 + (id) sequenceWithType:(NSString *) type dictionary:(NSDictionary *) dictionary scale:(CGFloat) scale;
++ (id) dummySequenceWithTime:(CGFloat) time;
++ (id) poseSequenceWithType:(NSString *) type time:(CGFloat) time;
 @end
 
 @interface SpineSequenceBone : SpineSequence

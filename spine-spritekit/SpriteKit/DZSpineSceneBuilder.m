@@ -148,7 +148,9 @@ static void _spine_adapt_disposeTexture( void * rendobj );
 + (SKAction *) skactionWithSpineSequence:(SpineSequence *) sequence forNode:(SKNode *) node forBone:(SpineBone *) bone
 {
     SKAction *action = nil;
-    if ( [sequence.type isEqualToString:kSpineSequenceTypeBonesTranslate]) {
+    if ( sequence.dummy ) {
+        action = [SKAction waitForDuration:sequence.duration];
+    } else if ( [sequence.type isEqualToString:kSpineSequenceTypeBonesTranslate]) {
         CGPoint point = bone.geometry.origin; //node.position;
         point.x += ((SpineSequenceBone *)sequence).translate.x;
         point.y += ((SpineSequenceBone *)sequence).translate.y;
@@ -218,6 +220,7 @@ static void _spine_adapt_disposeTexture( void * rendobj );
         //NSLog(@"- sequences type:%@", sequenceType);
         
         NSArray *sequences = [boneTimeline sequencesForType:sequenceType];
+        //NSLog(@"- sequences:%@", sequences);
         // type, params, duration
         SKAction *action = [[self class] skactionsWithSpineSequences:sequences sequenceType:sequenceType forNode:node forBone:bone];
         [actions addObject:action];
@@ -232,9 +235,8 @@ static void _spine_adapt_disposeTexture( void * rendobj );
     if ( delay > 0) {
         sequence = [SKAction sequence:@[ [SKAction waitForDuration:delay], group]];
     }
-    
+    // TODO: run forever for loop instead of chaining another sequence of actions
     [node runAction: sequence];
-    //NSLog(@"- delay:%2.2f group:%2.2f whole:%2.2f", delay, group.duration, sequence.duration);
 }
 
 + (void) applyAnimation:(SpineAnimation *) animation toNodeTree:(SKNode *) node forBone:(SpineBone *) bone map:(NSDictionary *) mapBoneToNode delay:(CGFloat) delay
@@ -304,15 +306,10 @@ static void _spine_adapt_disposeTexture( void * rendobj );
 {
     NSMutableArray *animations = [NSMutableArray array];
     
-    if ( animationNames == nil) {
-        // All the animations
-        [animations addObjectsFromArray:skeleton.animations];
-    } else {
-        for( NSString *animationName in animationNames) {
-            SpineAnimation *animation = [skeleton animationWithName:animationName];
-            if ( animation ) {
-                [animations addObject:animation];
-            }
+    for( NSString *animationName in animationNames) {
+        SpineAnimation *animation = [skeleton animationWithName:animationName];
+        if ( animation ) {
+            [animations addObject:animation];
         }
     }
     
@@ -428,6 +425,36 @@ static void _spine_adapt_disposeTexture( void * rendobj );
         SKTexture *texture = [SKTexture textureWithRect:rect inTexture:textureAtlas];
         sprite.texture = texture;
     }
+}
+#pragma mark - Unstable
+
++ (CGFloat) mergeAndLoopAnimations:(NSArray *) animations toNodeTree:(SKNode *) node forBone:(SpineBone *) bone map:(NSDictionary *) mapBoneToNode loop:(BOOL) loop
+{
+    CGFloat duration = 0;
+    
+    SpineAnimation *merged = nil;
+    for( SpineAnimation *animation in animations) {
+        if (merged) {
+            merged = [merged animationByAdding:animation delay:0];
+        } else {
+            merged = animation;
+        }
+    }
+    
+    if ( merged ) {
+        duration = merged.duration;
+        
+        [[self class] applyAnimation:merged toNodeTree:node forBone:bone map:mapBoneToNode delay:0];
+        if ( loop ) {
+            SKAction *delayAction = [SKAction waitForDuration:duration];
+            [node runAction:delayAction completion:^{
+                NSLog(@"Animation done:%@", merged.name);
+                [[self class] mergeAndLoopAnimations:animations toNodeTree:node forBone:bone map:mapBoneToNode loop:loop];
+            }];
+        }
+    }
+    
+    return duration;
 }
 
 @end

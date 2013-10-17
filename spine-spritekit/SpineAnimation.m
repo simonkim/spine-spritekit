@@ -74,4 +74,48 @@
             ];
 }
 
+#pragma mark - Unstable
+- (id)copyWithZone:(NSZone *)zone
+{
+    SpineAnimation *copy = [[[self class] allocWithZone:zone] init];
+    copy.name = self.name;
+    copy.duration = self.duration;
+    
+    for( NSString *type in [self.timelineMap allKeys]) {
+        NSMutableDictionary *partTimelines = self.timelineMap[type];
+        for( NSString *part in [partTimelines allKeys]) {
+            SpineTimeline *timeline = [[self timelineForType:type forPart:part] copy];
+            [copy setTimeline:timeline forType:type forPart:part];
+        }
+    }
+    
+    return copy;
+}
+
+- (id) animationByAdding:(SpineAnimation *) src delay:(CGFloat) delay
+{
+    // copy self to dst
+    SpineAnimation *dst = [self copy];
+    
+    for( NSString *type in [src.timelineMap allKeys]) {
+        NSMutableDictionary *partTimelines = src.timelineMap[type];
+        NSMutableSet *parts = [NSMutableSet setWithArray:[partTimelines allKeys]];
+        [parts addObjectsFromArray:[dst.timelineMap[type] allKeys]];
+        
+        for( NSString *part in parts) {
+            SpineTimeline *timeline = partTimelines[part];
+            SpineTimeline *dstTimeline = [dst timelineForType:type forPart:part];
+            if (dstTimeline) {
+                timeline = [dstTimeline timelineByAdding:timeline delay:delay + dst.duration];
+            } else {
+                timeline = [timeline copy];
+                [timeline delayBy:delay + dst.duration];
+            }
+            [dst setTimeline:timeline forType:type forPart:part];
+        }
+    }
+    dst.duration += delay + src.duration;
+    return dst;
+}
+
 @end

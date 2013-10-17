@@ -10,7 +10,7 @@
 #import "spine_adapt.h"
 #import "SpineTimeline.h"
 
-@interface SpineAnimation : NSObject
+@interface SpineAnimation : NSObject <NSCopying>
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic) NSTimeInterval duration;
 @property (nonatomic, strong) NSArray *timelines;   // SpineTimeline
@@ -22,4 +22,8 @@
 // part: head, tail,
 - (void) setTimeline:(SpineTimeline *) timeline forType:(NSString *) type forPart:(NSString *) part;
 - (SpineTimeline *) timelineForType:(NSString *) type forPart:(NSString *) part;
+
+#pragma mark - Unstable
+- (id) animationByAdding:(SpineAnimation *) animation delay:(CGFloat) delay;
+
 @end

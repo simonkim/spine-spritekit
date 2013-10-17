@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		F45213F8180A41D100D8BD26 /* goblinhead4spineboy.png in Resources */ = {isa = PBXBuildFile; fileRef = F45213F7180A41D100D8BD26 /* goblinhead4spineboy.png */; };
+		F4957456180BFB8B00EA94E0 /* DZSpineSceneBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = F495744F180BFB8B00EA94E0 /* DZSpineSceneBuilder.m */; };
+		F4957457180BFB8B00EA94E0 /* DZSpineSceneDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = F4957451180BFB8B00EA94E0 /* DZSpineSceneDescription.m */; };
+		F4957458180BFB8B00EA94E0 /* DZSpineSceneTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = F4957453180BFB8B00EA94E0 /* DZSpineSceneTrack.m */; };
+		F4957459180BFB8B00EA94E0 /* DZSpineTexturePool.m in Sources */ = {isa = PBXBuildFile; fileRef = F4957455180BFB8B00EA94E0 /* DZSpineTexturePool.m */; };
 		F4F8DA6E18080E1100F2C744 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F8DA6D18080E1100F2C744 /* Foundation.framework */; };
 		F4F8DA7018080E1100F2C744 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F8DA6F18080E1100F2C744 /* CoreGraphics.framework */; };
 		F4F8DA7218080E1100F2C744 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F8DA7118080E1100F2C744 /* UIKit.framework */; };
@@ -18,7 +22,6 @@
 		F4F8DA8318080E1200F2C744 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4F8DA8118080E1200F2C744 /* Main_iPhone.storyboard */; };
 		F4F8DA8618080E1200F2C744 /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4F8DA8418080E1200F2C744 /* Main_iPad.storyboard */; };
 		F4F8DA8918080E1200F2C744 /* DZViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F8DA8818080E1200F2C744 /* DZViewController.m */; };
-		F4F8DA8C18080E1200F2C744 /* DZMyScene.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F8DA8B18080E1200F2C744 /* DZMyScene.m */; };
 		F4F8DA8E18080E1200F2C744 /* Spaceship.png in Resources */ = {isa = PBXBuildFile; fileRef = F4F8DA8D18080E1200F2C744 /* Spaceship.png */; };
 		F4F8DA9018080E1200F2C744 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4F8DA8F18080E1200F2C744 /* Images.xcassets */; };
 		F4F8DA9718080E1200F2C744 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F8DA9618080E1200F2C744 /* XCTest.framework */; };
@@ -27,7 +30,6 @@
 		F4F8DAA118080E1200F2C744 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F4F8DA9F18080E1200F2C744 /* InfoPlist.strings */; };
 		F4F8DAA318080E1200F2C744 /* Spine_Spritekit_DemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F8DAA218080E1200F2C744 /* Spine_Spritekit_DemoTests.m */; };
 		F4F8DC701808175500F2C744 /* DZSpineLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F8DC581808175500F2C744 /* DZSpineLoader.m */; };
-		F4F8DC711808175500F2C744 /* DZSpineTexturePool.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F8DC5A1808175500F2C744 /* DZSpineTexturePool.m */; };
 		F4F8DC721808175500F2C744 /* spine_adapt.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F8DC5C1808175500F2C744 /* spine_adapt.m */; };
 		F4F8DC731808175500F2C744 /* SpineAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F8DC5E1808175500F2C744 /* SpineAnimation.m */; };
 		F4F8DC741808175500F2C744 /* SpineAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F8DC601808175500F2C744 /* SpineAttachment.m */; };
@@ -80,6 +82,14 @@
 
 /* Begin PBXFileReference section */
 		F45213F7180A41D100D8BD26 /* goblinhead4spineboy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = goblinhead4spineboy.png; sourceTree = "<group>"; };
+		F495744E180BFB8B00EA94E0 /* DZSpineSceneBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineSceneBuilder.h; sourceTree = "<group>"; };
+		F495744F180BFB8B00EA94E0 /* DZSpineSceneBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineSceneBuilder.m; sourceTree = "<group>"; };
+		F4957450180BFB8B00EA94E0 /* DZSpineSceneDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineSceneDescription.h; sourceTree = "<group>"; };
+		F4957451180BFB8B00EA94E0 /* DZSpineSceneDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineSceneDescription.m; sourceTree = "<group>"; };
+		F4957452180BFB8B00EA94E0 /* DZSpineSceneTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineSceneTrack.h; sourceTree = "<group>"; };
+		F4957453180BFB8B00EA94E0 /* DZSpineSceneTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineSceneTrack.m; sourceTree = "<group>"; };
+		F4957454180BFB8B00EA94E0 /* DZSpineTexturePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineTexturePool.h; sourceTree = "<group>"; };
+		F4957455180BFB8B00EA94E0 /* DZSpineTexturePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineTexturePool.m; sourceTree = "<group>"; };
 		F4F8DA6A18080E1100F2C744 /* Spine-Spritekit-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spine-Spritekit-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F8DA6D18080E1100F2C744 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F4F8DA6F18080E1100F2C744 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -95,8 +105,6 @@
 		F4F8DA8518080E1200F2C744 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPad.storyboard; sourceTree = "<group>"; };
 		F4F8DA8718080E1200F2C744 /* DZViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DZViewController.h; sourceTree = "<group>"; };
 		F4F8DA8818080E1200F2C744 /* DZViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DZViewController.m; sourceTree = "<group>"; };
-		F4F8DA8A18080E1200F2C744 /* DZMyScene.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DZMyScene.h; sourceTree = "<group>"; };
-		F4F8DA8B18080E1200F2C744 /* DZMyScene.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DZMyScene.m; sourceTree = "<group>"; };
 		F4F8DA8D18080E1200F2C744 /* Spaceship.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Spaceship.png; sourceTree = "<group>"; };
 		F4F8DA8F18080E1200F2C744 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		F4F8DA9518080E1200F2C744 /* Spine-Spritekit-DemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Spine-Spritekit-DemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,8 +114,6 @@
 		F4F8DAA218080E1200F2C744 /* Spine_Spritekit_DemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Spine_Spritekit_DemoTests.m; sourceTree = "<group>"; };
 		F4F8DC571808175500F2C744 /* DZSpineLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineLoader.h; sourceTree = "<group>"; };
 		F4F8DC581808175500F2C744 /* DZSpineLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineLoader.m; sourceTree = "<group>"; };
-		F4F8DC591808175500F2C744 /* DZSpineTexturePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineTexturePool.h; sourceTree = "<group>"; };
-		F4F8DC5A1808175500F2C744 /* DZSpineTexturePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineTexturePool.m; sourceTree = "<group>"; };
 		F4F8DC5B1808175500F2C744 /* spine_adapt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spine_adapt.h; sourceTree = "<group>"; };
 		F4F8DC5C1808175500F2C744 /* spine_adapt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spine_adapt.m; sourceTree = "<group>"; };
 		F4F8DC5D1808175500F2C744 /* SpineAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpineAnimation.h; sourceTree = "<group>"; };
@@ -258,8 +264,6 @@
 				F4F8DA8418080E1200F2C744 /* Main_iPad.storyboard */,
 				F4F8DA8718080E1200F2C744 /* DZViewController.h */,
 				F4F8DA8818080E1200F2C744 /* DZViewController.m */,
-				F4F8DA8A18080E1200F2C744 /* DZMyScene.h */,
-				F4F8DA8B18080E1200F2C744 /* DZMyScene.m */,
 				F4F8DA8D18080E1200F2C744 /* Spaceship.png */,
 				F4F8DA8F18080E1200F2C744 /* Images.xcassets */,
 				F4F8DA7618080E1100F2C744 /* Supporting Files */,
@@ -301,8 +305,6 @@
 			children = (
 				F4F8DC571808175500F2C744 /* DZSpineLoader.h */,
 				F4F8DC581808175500F2C744 /* DZSpineLoader.m */,
-				F4F8DC591808175500F2C744 /* DZSpineTexturePool.h */,
-				F4F8DC5A1808175500F2C744 /* DZSpineTexturePool.m */,
 				F4F8DC5B1808175500F2C744 /* spine_adapt.h */,
 				F4F8DC5C1808175500F2C744 /* spine_adapt.m */,
 				F4F8DC5D1808175500F2C744 /* SpineAnimation.h */,
@@ -332,6 +334,14 @@
 			children = (
 				F4F8DC6E1808175500F2C744 /* DZSpineScene.h */,
 				F4F8DC6F1808175500F2C744 /* DZSpineScene.m */,
+				F495744E180BFB8B00EA94E0 /* DZSpineSceneBuilder.h */,
+				F495744F180BFB8B00EA94E0 /* DZSpineSceneBuilder.m */,
+				F4957450180BFB8B00EA94E0 /* DZSpineSceneDescription.h */,
+				F4957451180BFB8B00EA94E0 /* DZSpineSceneDescription.m */,
+				F4957452180BFB8B00EA94E0 /* DZSpineSceneTrack.h */,
+				F4957453180BFB8B00EA94E0 /* DZSpineSceneTrack.m */,
+				F4957454180BFB8B00EA94E0 /* DZSpineTexturePool.h */,
+				F4957455180BFB8B00EA94E0 /* DZSpineTexturePool.m */,
 			);
 			path = SpriteKit;
 			sourceTree = "<group>";
@@ -550,27 +560,29 @@
 				F4F8DC781808175500F2C744 /* SpineSkeleton.m in Sources */,
 				F4F8DCD31808176700F2C744 /* AttachmentLoader.c in Sources */,
 				F4F8DC701808175500F2C744 /* DZSpineLoader.m in Sources */,
+				F4957457180BFB8B00EA94E0 /* DZSpineSceneDescription.m in Sources */,
 				F4F8DC7A1808175500F2C744 /* SpineTimeline.m in Sources */,
 				F4F8DC751808175500F2C744 /* SpineBone.m in Sources */,
+				F4957456180BFB8B00EA94E0 /* DZSpineSceneBuilder.m in Sources */,
 				F4F8DC771808175500F2C744 /* SpineSequence.m in Sources */,
 				F4F8DC741808175500F2C744 /* SpineAttachment.m in Sources */,
 				F4F8DCDC1808176700F2C744 /* Skeleton.c in Sources */,
 				F4F8DCD61808176700F2C744 /* BoundingBoxAttachment.c in Sources */,
-				F4F8DA8C18080E1200F2C744 /* DZMyScene.m in Sources */,
 				F4F8DCD81808176700F2C744 /* EventData.c in Sources */,
 				F4F8DA8018080E1200F2C744 /* DZAppDelegate.m in Sources */,
 				F4F8DCDB1808176700F2C744 /* RegionAttachment.c in Sources */,
 				F4F8DC761808175500F2C744 /* SpineGeometry.m in Sources */,
-				F4F8DC711808175500F2C744 /* DZSpineTexturePool.m in Sources */,
 				F4F8DCD11808176700F2C744 /* AtlasAttachmentLoader.c in Sources */,
 				F4F8DCE11808176700F2C744 /* Slot.c in Sources */,
 				F4F8DC731808175500F2C744 /* SpineAnimation.m in Sources */,
 				F4F8DCD71808176700F2C744 /* Event.c in Sources */,
 				F4F8DCDD1808176700F2C744 /* SkeletonBounds.c in Sources */,
 				F4F8DC721808175500F2C744 /* spine_adapt.m in Sources */,
+				F4957459180BFB8B00EA94E0 /* DZSpineTexturePool.m in Sources */,
 				F4F8DCE01808176700F2C744 /* Skin.c in Sources */,
 				F4F8DCD01808176700F2C744 /* Atlas.c in Sources */,
 				F4F8DCDE1808176700F2C744 /* SkeletonData.c in Sources */,
+				F4957458180BFB8B00EA94E0 /* DZSpineSceneTrack.m in Sources */,
 				F4F8DCCD1808176700F2C744 /* Animation.c in Sources */,
 				F4F8DCCE1808176700F2C744 /* AnimationState.c in Sources */,
 				F4F8DCD41808176700F2C744 /* Bone.c in Sources */,

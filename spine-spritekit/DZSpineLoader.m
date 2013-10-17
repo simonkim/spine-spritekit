@@ -90,7 +90,7 @@
     
     // Runtime load
     spine_load(&ctx, [name UTF8String], [atlasName UTF8String], scale, [animationName UTF8String]);
-    
+
     if ( animationName == 0 && ctx.skeletonData->animationCount > 0) {
         animationName = @(ctx.skeletonData->animations[0]->name);
         printf("spine: Selecting the first animation as a default:%s\n", ctx.skeletonData->animations[0]->name);

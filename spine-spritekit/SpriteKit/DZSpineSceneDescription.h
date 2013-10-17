@@ -12,6 +12,6 @@
 
 - (void) addTrackRaw:(NSDictionary *) raw;
 - (void) addCustomTextureRaw:(NSDictionary *) raw;
-- (NSArray *) buildSceneWithSize:(CGSize) size;
+- (NSArray *) buildScene;
 + (id) description;
 @end

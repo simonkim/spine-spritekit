@@ -13,8 +13,22 @@ NSString *kSpineSequenceTypeBonesRotate = @"rotate";
 NSString *kSpineSequenceTypeBonesScale = @"scale";
 NSString *kSpineSequenceTypeSlotsAtachment = @"attachment";
 NSString *kSpineSequenceTypeSlotsColor = @"color";
+NSString *kSpineSequenceTypeSDummy = @"dummywait";
 
 @implementation SpineSequence
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    id copy = [[[self class] allocWithZone:zone] init];
+    [copy setType:self.type];
+    [copy setTime:self.time];
+    [copy setDuration:self.duration];
+    [copy setCurve:self.curve];
+    [copy setBezier1:self.bezier1];
+    [copy setBezier2:self.bezier2];
+    [copy setDummy:self.dummy];
+    return copy;
+}
 
 + (id) sequenceWithType:(NSString *) type dictionary:(NSDictionary *) dictionary scale:(CGFloat)scale
 {
@@ -41,6 +55,29 @@ NSString *kSpineSequenceTypeSlotsColor = @"color";
             NSStringFromClass([self class]), self.type, self.time, self.duration
             ];
 }
+#pragma mark - Unstable
++ (id) dummySequenceWithTime:(CGFloat) time
+{
+    id sequence = [[[self class] alloc] init];
+    [sequence setType:kSpineSequenceTypeSDummy];
+    [sequence setDummy:YES];
+    [sequence setTime:time];
+    return sequence;
+}
+
++ (id) poseSequenceWithType:(NSString *) type time:(CGFloat) time
+{
+    id result = nil;
+    if ( [type isEqualToString:kSpineSequenceTypeBonesTranslate]
+        || [type isEqualToString:kSpineSequenceTypeBonesRotate]
+        || [type isEqualToString:kSpineSequenceTypeBonesScale]
+        ) {
+        result = [SpineSequenceBone poseSequenceWithType:type time:time];
+    }
+    
+    return result;
+}
+
 @end
 
 @implementation SpineSequenceBone
@@ -85,9 +122,41 @@ NSString *kSpineSequenceTypeSlotsColor = @"color";
             ];
 }
 
+#pragma mark - Unstable
+- (id)copyWithZone:(NSZone *)zone
+{
+    SpineSequenceBone *copy = [super copyWithZone:zone];
+    [copy setTranslate:self.translate];
+    [copy setAngle:self.angle];
+    [copy setScale:self.scale];
+    
+    return copy;
+}
+
++ (id) poseSequenceWithType:(NSString *) type time:(CGFloat) time
+{
+    SpineSequenceBone *result = [[[self class] alloc] init];
+    result.type = type;
+    result.time = time;
+    result.duration = 0;  // unknown
+    result.curve = SpineSequenceCurveLinear;
+    result.translate = CGPointMake(0, 0);
+    result.scale = CGPointMake(1, 1);
+    result.angle = 0;
+    return result;
+}
+
+
 @end
 
 @implementation SpineSequenceSlot
+- (id)copyWithZone:(NSZone *)zone
+{
+    SpineSequenceSlot *copy = [super copyWithZone:zone];
+    [copy setAttachment:self.attachment];
+    [copy setColor:self.color];
+    return copy;
+}
 
 + (id) sequenceWithType:(NSString *) type dictionary:(NSDictionary *) dictionary scale:(CGFloat)scale
 {

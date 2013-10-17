@@ -116,7 +116,7 @@
     return [animations copy];
 }
 
-- (NSArray *) buildSceneWithSize:(CGSize) size
+- (NSArray *) buildScene
 {
     NSMutableArray *nodes = [NSMutableArray array];
     NSMutableArray *trackObjs = [NSMutableArray array];

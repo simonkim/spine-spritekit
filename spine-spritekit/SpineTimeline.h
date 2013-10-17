@@ -8,11 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-@interface SpineTimeline : NSObject
+@interface SpineTimeline : NSObject <NSCopying>
 @property (nonatomic, copy, readonly) NSArray *types;
 
 + (id) timeline;
 - (void) setSequences:(NSArray *) sequences forType:(NSString *) type;
 - (NSArray *) sequencesForType:(NSString *) type;
-@end
 
+#pragma mark - Unstable
+- (id) timelineByAdding:(SpineTimeline *) timeline delay:(CGFloat) delay;
+- (void) delayBy:(CGFloat) delay;
+@end

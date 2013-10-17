@@ -49,7 +49,7 @@ int spine_load(struct spinecontext *ctx, const char *skeletonname, const char *a
         animationName = skeletonData->animations[0]->name;
         printf("spine: Selecting the first animation as a default:%s\n", animationName);
     }
-    
+
     // animation
 	spAnimation* animation = spSkeletonData_findAnimation(skeletonData, animationName);
 	if (animation) {
