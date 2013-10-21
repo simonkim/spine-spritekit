@@ -49,10 +49,29 @@ NSString *kSpineSequenceTypeSDummy = @"dummywait";
     return sequence;
 }
 
++ (NSString *) curveName:(SpineSequenceCurve) curve
+{
+    NSString *name = @"unknown";
+    switch (curve) {
+        case SpineSequenceCurveBezier:
+            name = @"bezier";
+            break;
+        case SpineSequenceCurveLinear:
+            name = @"linear";
+            break;
+        case SpineSequenceCurveStepped:
+            name = @"stepped";
+            break;
+        default:
+            break;
+    }
+    return name;
+}
+
 - (NSString *) description
 {
-    return [NSString stringWithFormat:@"%@ {type:%@ time:%2.2f duration:%2.2f curve:}",
-            NSStringFromClass([self class]), self.type, self.time, self.duration
+    return [NSString stringWithFormat:@"%@ {type:%@ time:%2.2f duration:%2.2f curve:%@}",
+            NSStringFromClass([self class]), self.type, self.time, self.duration, [[self class] curveName:self.curve ]
             ];
 }
 #pragma mark - Unstable
@@ -169,6 +188,9 @@ NSString *kSpineSequenceTypeSDummy = @"dummywait";
     
     if ( [type isEqualToString:kSpineSequenceTypeSlotsAtachment] ) {
         sequence.attachment = dictionary[@"name"];
+        if ( [sequence.attachment isKindOfClass:[NSNull class]]) {
+            sequence.attachment = nil;
+        }
     } else if( [type isEqualToString:kSpineSequenceTypeSlotsColor] ) {
         sequence.color = [UIColor redColor];
         NSLog(@"Warning: Color decoding not implemented: %@[%d]", @(__FILE__), __LINE__);
@@ -177,4 +199,13 @@ NSString *kSpineSequenceTypeSDummy = @"dummywait";
     return sequence;
 }
 
+- (NSString *) description
+{
+    NSString *description = [super description];
+    
+    return [description stringByAppendingFormat:@"{attachment:%@ color:%@}",
+            self.attachment,
+            self.color
+            ];
+}
 @end

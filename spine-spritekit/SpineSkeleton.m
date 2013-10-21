@@ -16,6 +16,9 @@
 @property (nonatomic, readonly) NSMutableArray *manimations;
 @property (nonatomic, readonly) NSMutableDictionary *animationMap;
 @property (nonatomic) CGFloat scale;
+@property (nonatomic) struct spinecontext *spineContext;
+@property (nonatomic) BOOL ownsSpineContext;
+
 @end
 
 @implementation SpineSkeleton
@@ -130,11 +133,49 @@
     return self.animationMap[name];
 }
 
+- (void) setSpineContext:(struct spinecontext *)spineContext owns:(BOOL)owns
+{
+    if ( spineContext ) {
+        [self unsetSpineContext];
+        self.ownsSpineContext = owns;
+        if ( owns ) {
+            _spineContext = malloc(sizeof(struct spinecontext));
+            memcpy(_spineContext, spineContext, sizeof(struct spinecontext));
+        } else {
+            _spineContext = spineContext;
+        }
+    } else {
+        [self unsetSpineContext];
+    }
+}
+
+- (void) setSpineContext:(struct spinecontext *)spineContext
+{
+    [self setSpineContext:spineContext owns:NO];
+}
+
+- (void) unsetSpineContext
+{
+    if ( self.ownsSpineContext && _spineContext ) {
+        spine_dispose(_spineContext);
+        free(_spineContext);
+    }
+    _spineContext = NULL;
+    self.ownsSpineContext = NO;
+}
+
 + (id) skeletonWithName:(NSString *) name atlasName:(NSString *) atlasName scale:(CGFloat) scale
 {
     id skeleton = [DZSpineLoader skeletonWithName:name atlasName:atlasName scale:scale animationName:nil];
-    [skeleton setScale:scale];
+    if ( skeleton ) {
+        [skeleton setName:name];
+        [skeleton setScale:scale];
+    }
     return skeleton;
 }
 
+- (void) dealloc
+{
+    [self unsetSpineContext];
+}
 @end

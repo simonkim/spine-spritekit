@@ -19,6 +19,11 @@
     [result setSize:CGSizeMake(rattach->width, rattach->height)];
     [result setRendererObject:((spAtlasRegion*)rattach->rendererObject)->page->rendererObject];
     
+    BOOL rotated = NO;
+    CGRect region = spine_uvs2rect(rattach->uvs, &rotated);
+    [result setRectInAtlas:region];
+    [result setRegionRotated:rotated];
+    
     return result;
 }
 

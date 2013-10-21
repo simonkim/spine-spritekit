@@ -25,7 +25,6 @@
     
     // animations.<animation_name>.<animation_type>.<timeline_type>
     NSDictionary *animations = skeletonRaw[@"animations"];
-    NSString *timelineType = @"bones";
     
     // Animations
     for( NSString *animationName in [animations allKeys]) {
@@ -36,29 +35,38 @@
         }
         NSDictionary *animation = animations[animationName];
 
-        // "bones" timeline only for now
-        NSDictionary *timelines = animation[timelineType];
-        NSLog(@"%@.%@:%@", animationName, timelineType, [timelines allKeys]);
+        NSArray *sections = [animation allKeys];    // bones, slots, ...
+        NSLog(@"Sections:%@", sections);
         
-        
-        // Timelines
-        for( NSString *boneName in [timelines allKeys]) {
-            SpineTimeline *spineTimeline = [SpineTimeline timeline];
-            NSDictionary *sequences = timelines[boneName];
+        for( NSString *section in sections ) {
+            NSDictionary *timelines = animation[section];
             
-            // subsequence: translate, rotate, scale
-            for( NSString *type in [sequences allKeys]) {
-                
-                NSMutableArray *subSequences = [NSMutableArray arrayWithArray:sequences[type]];
-                for( int i = 0; i < subSequences.count; i++ ) {
-                    subSequences[i] = [SpineSequence sequenceWithType:type dictionary:subSequences[i] scale:scale];
+            if ( [timelines isKindOfClass:[NSArray class]]) {
+                // events, draworder
+                NSLog(@"%@.%@ - Not supported yet", animationName, section);
+            } else {
+                NSLog(@"%@.%@:%@", animationName, section, [timelines allKeys]);
+                // Parts: bone names, or slot names
+                for( NSString *part in [timelines allKeys]) {
+                    SpineTimeline *spineTimeline = [SpineTimeline timeline];
+                    NSDictionary *sequences = timelines[part];
+                    
+                    // subsequence: translate, rotate, scale
+                    for( NSString *type in [sequences allKeys]) {
+                        
+                        NSMutableArray *subSequences = [NSMutableArray arrayWithArray:sequences[type]];
+                        for( int i = 0; i < subSequences.count; i++ ) {
+                            subSequences[i] = [SpineSequence sequenceWithType:type dictionary:subSequences[i] scale:scale];
+                        }
+                        
+                        [spineTimeline setSequences:subSequences forType:type];
+                    }
+                    
+                    NSLog(@"Timeline for: %@.%@", section, part);
+                    NSLog(@" - %@", spineTimeline);
+                    [spineAnimation setTimeline:spineTimeline forType:section forPart:part];
                 }
-                
-                [spineTimeline setSequences:subSequences forType:type];
             }
-            
-            NSLog(@"Timeline: %@", boneName);
-            [spineAnimation setTimeline:spineTimeline forType:timelineType forPart:boneName];
         }
     }
 
@@ -85,74 +93,55 @@
 + (SpineSkeleton *) skeletonWithName:(NSString *) name atlasName:(NSString *) atlasName scale:(CGFloat) scale animationName:(NSString *) animationName
 {
     SpineSkeleton *result = nil;
-    
+    int ret = -1;
     struct spinecontext ctx;
     
     // Runtime load
-    spine_load(&ctx, [name UTF8String], [atlasName UTF8String], scale, [animationName UTF8String]);
-
-    if ( animationName == 0 && ctx.skeletonData->animationCount > 0) {
-        animationName = @(ctx.skeletonData->animations[0]->name);
-        printf("spine: Selecting the first animation as a default:%s\n", ctx.skeletonData->animations[0]->name);
-    }
+    ret = spine_load(&ctx, [name UTF8String], [atlasName UTF8String], scale, [animationName UTF8String]);
     
-    spSkeleton_update(ctx.skeleton, 0.f);
-    spAnimationState_setAnimationByName(ctx.state, 0, [animationName UTF8String], 0);
-    spAnimationState *state = ctx.state;
-    spSkeleton *skeleton = ctx.skeleton;
-    
-    spAnimationState_update(state, 0.f);
-    spAnimationState_apply(state, skeleton);
-    spSkeleton_updateWorldTransform(skeleton);
-    
-    result = [[SpineSkeleton alloc] init];
-    
-    // Animations
-    for (int i = 0, n = ctx.skeletonData->animationCount; i < n; i++) {
-        [result addAnimation:[SpineAnimation animationWithCAnimation:ctx.skeletonData->animations[i]]];
-    }
-    
-    // Bones
-    for (int i = 0, n = skeleton->boneCount; i < n; i++) {
-        [self addBone:skeleton->bones[i] toSpineSkeleton:result];
-    }
-
-    // Slots
-    for (int i = 0, n = skeleton->slotCount; i < n; i++) {
-        spSlot* slot = skeleton->drawOrder[i];
-        SpineSlot *spineSlot = [SpineSlot slotWithCSlot:slot];
-        if ( slot->attachment && slot->attachment->type == ATTACHMENT_REGION && spineSlot.attachment ) {
-            
-            // Atlas Region for the Attachment
-            spRegionAttachment *rattach = (spRegionAttachment *) slot->attachment;
-            CGRect region = spineSlot.attachment.rectInAtlas;
-            region.size.width = rattach->regionWidth;
-            region.size.height = rattach->regionHeight;
-            
-            
-            float *uvs = rattach->uvs;
-            if ( (uvs[VERTEX_X3] - uvs[VERTEX_X2]) == 0 ) {
-                region.origin = CGPointMake(uvs[VERTEX_X2], uvs[VERTEX_Y2]);    // bottom-left
-                region.size = CGSizeMake((uvs[VERTEX_X4] - uvs[VERTEX_X3]),(uvs[VERTEX_Y1] - uvs[VERTEX_Y4]));
-                spineSlot.attachment.regionRotated = YES;
-            } else {
-                region.origin = CGPointMake(uvs[VERTEX_X1], uvs[VERTEX_Y1]);    // bottom-left
-                region.size = CGSizeMake((uvs[VERTEX_X3] - uvs[VERTEX_X2]),(uvs[VERTEX_Y1] - uvs[VERTEX_Y2]));
-                spineSlot.attachment.regionRotated = NO;
-            }
-            spineSlot.attachment.rectInAtlas = region;
+    if ( ret == 0 ) {
+        if ( animationName == 0 && ctx.skeletonData->animationCount > 0) {
+            animationName = @(ctx.skeletonData->animations[0]->name);
+            printf("spine: Selecting the first animation as a default:%s\n", ctx.skeletonData->animations[0]->name);
         }
         
-        spineSlot.bone = [result boneWithName:@(slot->bone->data->name)];
-        [result addSlot:spineSlot];
+        spSkeleton_update(ctx.skeleton, 0.f);
+        spAnimationState_setAnimationByName(ctx.state, 0, [animationName UTF8String], 0);
+        spAnimationState *state = ctx.state;
+        spSkeleton *skeleton = ctx.skeleton;
         
-        spineSlot.bone.drawOrderIndex = i;
+        spAnimationState_update(state, 0.f);
+        spAnimationState_apply(state, skeleton);
+        spSkeleton_updateWorldTransform(skeleton);
+        
+        result = [[SpineSkeleton alloc] init];
+        [result setSpineContext:&ctx owns:YES];
+        
+        // Animations
+        for (int i = 0, n = ctx.skeletonData->animationCount; i < n; i++) {
+            [result addAnimation:[SpineAnimation animationWithCAnimation:ctx.skeletonData->animations[i]]];
+        }
+        
+        // Bones
+        for (int i = 0, n = skeleton->boneCount; i < n; i++) {
+            [self addBone:skeleton->bones[i] toSpineSkeleton:result];
+        }
+        
+        // Slots
+        for (int i = 0, n = skeleton->slotCount; i < n; i++) {
+            spSlot* slot = skeleton->drawOrder[i];
+            SpineSlot *spineSlot = [SpineSlot slotWithCSlot:slot];
+            
+            spineSlot.bone = [result boneWithName:@(slot->bone->data->name)];
+            [result addSlot:spineSlot];
+            
+            spineSlot.bone.drawOrderIndex = i;
+        }
+        
+        [self loadTimelinesFromSkeletonName:name skeleton:result scale:scale];
+        
+        /* pointers in ctx will be disposed when SpineSkeleton deallocated */
     }
-    
-    [self loadTimelinesFromSkeletonName:name skeleton:result scale:scale];
-    
-    spine_dispose(&ctx);
-    
     return result;
 }
 

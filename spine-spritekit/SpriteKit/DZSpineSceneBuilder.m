@@ -14,22 +14,18 @@
 #import "SpineGeometry.h"
 #import "spine_adapt.h"
 #import "SpineSequence.h"
+#import "DZSpineSpriteKitMaps.h"
+#import "DZSpineSpriteKitAnimation.h"
 
 static void * _spine_adapt_createTexture (const char* path, int *pwidth, int *pheight);
 static void _spine_adapt_disposeTexture( void * rendobj );
 
 @interface DZSpineSceneBuilder()
-@property (nonatomic, readonly) NSMutableDictionary *mapBoneToNode;
-@property (nonatomic, readonly) NSMutableDictionary *mapSlotToNode;
-@property (nonatomic, readonly) NSMutableDictionary *mapOverrideSlotToAttachment;
+@property (nonatomic, readonly) DZSpineSpriteKitMaps *maps;
 @end
 
 @implementation DZSpineSceneBuilder
-
-@synthesize mapBoneToNode = _mapBoneToNode;
-@synthesize mapSlotToNode = _mapSlotToNode;
-@synthesize mapOverrideSlotToAttachment = _mapOverrideSlotToAttachment;
-
+@synthesize maps = _maps;
 
 - (SKNode *) nodeWithSkeleton:(SpineSkeleton *) skeleton animationName:(NSString *) animationName loop:(BOOL)loop
 {
@@ -40,18 +36,16 @@ static void _spine_adapt_disposeTexture( void * rendobj );
 {
     return [[self class] nodeWithSkeleton:skeleton animationNames:animationNames
                                     debug:self.debug
-                                      map:self.mapBoneToNode
-                                      map:self.mapSlotToNode
-                                      map:self.mapOverrideSlotToAttachment loop:loop];
+                                     maps:self.maps
+                                     loop:loop];
 }
 
 - (SKNode *) nodeWithSkeleton:(SpineSkeleton *) skeleton animations:(NSArray *) animations loop:(BOOL)loop
 {
     return [[self class] nodeWithSkeleton:skeleton animations:animations
                                     debug:self.debug
-                                      map:self.mapBoneToNode
-                                      map:self.mapSlotToNode
-                                      map:self.mapOverrideSlotToAttachment loop:loop];
+                                     maps:self.maps
+                                     loop:loop];
 }
 
 
@@ -61,28 +55,13 @@ static void _spine_adapt_disposeTexture( void * rendobj );
 }
 
 #pragma mark - Properties
-- (NSMutableDictionary *) mapBoneToNode
-{
-    if ( _mapBoneToNode == nil ) {
-        _mapBoneToNode = [NSMutableDictionary dictionary];
-    }
-    return _mapBoneToNode;
-}
 
-- (NSMutableDictionary *) mapSlotToNode
+- (DZSpineSpriteKitMaps *) maps
 {
-    if ( _mapSlotToNode == nil ) {
-        _mapSlotToNode = [NSMutableDictionary dictionary];
+    if ( _maps == nil ) {
+        _maps = [DZSpineSpriteKitMaps maps];
     }
-    return _mapSlotToNode;
-}
-
-- (NSMutableDictionary *) mapOverrideSlotToAttachment
-{
-    if ( _mapOverrideSlotToAttachment == nil ) {
-        _mapOverrideSlotToAttachment = [NSMutableDictionary dictionary];
-    }
-    return _mapOverrideSlotToAttachment;
+    return _maps;
 }
 
 #pragma mark - Building Nodes
@@ -116,9 +95,8 @@ static void _spine_adapt_disposeTexture( void * rendobj );
     return node;
 }
 
-+ (void) buildChildNodesForBone:(SpineBone *) bone
++ (void) buildChildNodesForSpineBone:(SpineBone *) bone
                      parentNode:(SKNode *) parentNode
-                      animation:(SpineAnimation *) animation
                           debug:(BOOL) debug
                             map:(NSMutableDictionary *) mapBoneToNode
 {
@@ -129,124 +107,13 @@ static void _spine_adapt_disposeTexture( void * rendobj );
             node.zPosition = ((int) child.drawOrderIndex - (int)bone.drawOrderIndex);
             NSLog(@"%@: zPosition=%2.2f drawOrderIndex:%d", child.name, node.zPosition, child.drawOrderIndex);
         }
-        if ( animation ) [[self class] applyAnimation:animation toNode:node forBone:child delay:0];
         
         mapBoneToNode[child.name] = node;
-        [self buildChildNodesForBone:child parentNode:node animation:animation debug:debug map:mapBoneToNode];
+        [self buildChildNodesForSpineBone:child parentNode:node debug:debug map:mapBoneToNode];
     }];
 }
 
 #pragma mark - Animations
-+ (void) removeActionsFromNodeTree:(SKNode *) parentNode
-{
-    [parentNode removeAllActions];
-    [[parentNode children] enumerateObjectsUsingBlock:^(SKNode *node, NSUInteger idx, BOOL *stop) {
-        [self removeActionsFromNodeTree:node];
-    }];
-}
-
-+ (SKAction *) skactionWithSpineSequence:(SpineSequence *) sequence forNode:(SKNode *) node forBone:(SpineBone *) bone
-{
-    SKAction *action = nil;
-    if ( sequence.dummy ) {
-        action = [SKAction waitForDuration:sequence.duration];
-    } else if ( [sequence.type isEqualToString:kSpineSequenceTypeBonesTranslate]) {
-        CGPoint point = bone.geometry.origin; //node.position;
-        point.x += ((SpineSequenceBone *)sequence).translate.x;
-        point.y += ((SpineSequenceBone *)sequence).translate.y;
-        
-        action = [SKAction moveTo:point duration:sequence.duration];
-
-    } else if ( [sequence.type isEqualToString:kSpineSequenceTypeBonesRotate]) {
-        CGFloat radians = bone.geometry.rotation * M_PI / 180;
-        radians += ((SpineSequenceBone *)sequence).angle * M_PI / 180;
-        action = [SKAction rotateToAngle:radians duration:sequence.duration shortestUnitArc:YES];
-    } else if ( [sequence.type isEqualToString:kSpineSequenceTypeBonesScale]) {
-        CGPoint scale = bone.geometry.scale;
-        scale.x *= ((SpineSequenceBone *)sequence).scale.x;
-        scale.y *= ((SpineSequenceBone *)sequence).scale.y;
-        action = [SKAction scaleXTo:scale.x y:scale.y duration:sequence.duration];
-    } else {
-        NSLog(@"Unsupported sequence type:%@", sequence.type);
-        action = [SKAction waitForDuration:sequence.duration];
-    }
-
-    return action;
-}
-
-+ (SKAction *) skactionsWithSpineSequences:(NSArray *) sequences sequenceType:(NSString *) sequenceType forNode:(SKNode *) node forBone:(SpineBone *) bone
-{
-    NSMutableArray *actions = [NSMutableArray array];
-    
-    SpineSequence *lastSequence = sequences[0];
-    lastSequence.duration = lastSequence.time;
-    [actions addObject:[self skactionWithSpineSequence:lastSequence forNode:node forBone:bone]];
-    
-    SpineSequence *sequence = nil;
-    for( int i = 1; i < sequences.count; i++ ) {
-        sequence = sequences[i];
-        sequence.duration = sequence.time - lastSequence.time;
-        SKAction *action = [self skactionWithSpineSequence:sequence forNode:node forBone:bone];
-        [actions addObject:action];
-        
-        // Apply curve data in the last sequence
-        if (lastSequence.curve == SpineSequenceCurveBezier ) {
-            action.timingMode = SKActionTimingEaseInEaseOut;
-        } else {
-            action.timingMode = SKActionTimingLinear;
-        }
-        
-        lastSequence = sequence;
-    }
-    
-    return [SKAction sequence:actions];
-}
-
-+ (void) applyAnimation:(SpineAnimation *) animation toNode:(SKNode *) node forBone:(SpineBone *) bone delay:(CGFloat) delay
-{
-    SpineTimeline *boneTimeline = [animation timelineForType:@"bones" forPart:bone.name];
-    NSMutableArray *actions = [NSMutableArray array];
-    NSArray *sequenceTypes = [boneTimeline types];
-
-    // Pose actions
-    CGFloat poseDelay = 0.f;
-    [actions addObject:[SKAction moveTo:bone.geometry.origin duration:poseDelay]];
-    [actions addObject:[SKAction scaleXTo:bone.geometry.scale.x y:bone.geometry.scale.y duration:poseDelay]];
-    CGFloat radians = (CGFloat)(bone.geometry.rotation * M_PI / 180);
-    [actions addObject:[SKAction rotateToAngle:radians duration:poseDelay shortestUnitArc:YES]];
-    
-    //NSLog(@"Animation for bone:%@", bone.name);
-    for( NSString *sequenceType in sequenceTypes) {
-        //NSLog(@"- sequences type:%@", sequenceType);
-        
-        NSArray *sequences = [boneTimeline sequencesForType:sequenceType];
-        //NSLog(@"- sequences:%@", sequences);
-        // type, params, duration
-        SKAction *action = [[self class] skactionsWithSpineSequences:sequences sequenceType:sequenceType forNode:node forBone:bone];
-        [actions addObject:action];
-    }
-    
-    
-    // Synchronize the whole duration of the part animation
-    [actions addObject:[SKAction waitForDuration:animation.duration]];
-    SKAction *group = [SKAction group:actions];
-    
-    SKAction *sequence = group;
-    if ( delay > 0) {
-        sequence = [SKAction sequence:@[ [SKAction waitForDuration:delay], group]];
-    }
-    // TODO: run forever for loop instead of chaining another sequence of actions
-    [node runAction: sequence];
-}
-
-+ (void) applyAnimation:(SpineAnimation *) animation toNodeTree:(SKNode *) node forBone:(SpineBone *) bone map:(NSDictionary *) mapBoneToNode delay:(CGFloat) delay
-{
-    [self applyAnimation:animation toNode:node forBone:bone delay:delay];
-    [bone.children enumerateObjectsUsingBlock:^(SpineBone *child, NSUInteger idx, BOOL *stop) {
-        SKNode *node = mapBoneToNode[child.name];
-        [self applyAnimation:animation toNodeTree:node forBone:child map:mapBoneToNode delay:delay];
-    }];
-}
 
 + (void) animatePoseToNodeTree:(SKNode *) node forBone:(SpineBone *) bone map:(NSDictionary *) mapBoneToNode delay:(CGFloat) delay
 {
@@ -261,47 +128,25 @@ static void _spine_adapt_disposeTexture( void * rendobj );
     
 }
 
-+ (CGFloat) chainAnimations:(NSArray *) animations toNodeTree:(SKNode *) node forBone:(SpineBone *) bone map:(NSDictionary *) mapBoneToNode loop:(BOOL) loop
-{
-    CGFloat delay = 0;
-    for( SpineAnimation *animation in animations) {
-        NSLog(@"Applying Animation:%@", animation.name);
-        [[self class] applyAnimation:animation toNodeTree:node forBone:bone map:mapBoneToNode delay:delay];
-        delay += animation.duration;
-    }
-    if ( loop ) {
-        SKAction *delayAction = [SKAction waitForDuration:delay];
-        [node runAction:delayAction completion:^{
-            [[self class] chainAnimations:animations toNodeTree:node forBone:bone map:mapBoneToNode loop:loop];
-        }];
-    }
-    
-    return delay;
-}
+
 
 #pragma mark - Building Nodes
 + (SKNode *) nodeWithSkeleton:(SpineSkeleton *) skeleton animationName:(NSString *) animationName
                         debug:(BOOL) debug
-                          map:(NSMutableDictionary *) mapBoneToNode
-                          map:(NSMutableDictionary *) mapSlotToNode
-                          map:(NSMutableDictionary *) mapOverrideSlotToAttachment
+                         maps:(DZSpineSpriteKitMaps *) maps
                          loop:(BOOL) loop
 {
     NSArray *animationNames = (animationName ? @[animationName] : nil);
     return [self nodeWithSkeleton:skeleton animationNames:animationNames
                             debug:debug
-                              map:mapBoneToNode
-                              map:mapSlotToNode
-                              map:mapOverrideSlotToAttachment
+                             maps:maps
                              loop:loop
             ];
 }
 
 + (SKNode *) nodeWithSkeleton:(SpineSkeleton *) skeleton animationNames:(NSArray *) animationNames
                         debug:(BOOL) debug
-                          map:(NSMutableDictionary *) mapBoneToNode
-                          map:(NSMutableDictionary *) mapSlotToNode
-                          map:(NSMutableDictionary *) mapOverrideSlotToAttachment
+                         maps:(DZSpineSpriteKitMaps *) maps
                          loop:(BOOL) loop
 {
     NSMutableArray *animations = [NSMutableArray array];
@@ -313,14 +158,58 @@ static void _spine_adapt_disposeTexture( void * rendobj );
         }
     }
     
-    return [self nodeWithSkeleton:skeleton animations:animations debug:debug map:mapBoneToNode map:mapSlotToNode map:mapOverrideSlotToAttachment loop:loop];
+    return [self nodeWithSkeleton:skeleton
+                       animations:animations
+                            debug:debug
+                             maps:maps
+                             loop:loop];
+}
+
++ (SKTexture *) textureForAttachment:(spAttachment *) attachment
+                             rotated:(BOOL *) protated
+                                 map:(NSDictionary *) mapOverride
+{
+    NSString *atlasName = nil;
+    CGRect rect;
+    SKTexture *texture = nil;
+    *protated = NO;
+    
+    if ( attachment && attachment->name && attachment->type == ATTACHMENT_REGION) {
+        // Try override
+        if ( attachment->name ) {
+            NSDictionary *override = mapOverride[@(attachment->name)];
+            if ( override ) {
+                // Override texture?
+                atlasName = override[@"textureName"];
+                rect = CGRectFromString(override[@"rectInAtlas"]);
+            }
+        }
+        
+        // Try attachment
+        if ( atlasName == nil) {
+            spRegionAttachment *rattach = (spRegionAttachment *) attachment;
+            
+            atlasName = (__bridge NSString *) ((spAtlasRegion*)rattach->rendererObject)->page->rendererObject;
+            rect = spine_uvs2rect(rattach->uvs, protated);
+            rect.origin.y = 1 - rect.origin.y;
+        }
+        
+        if ( atlasName ) {
+            SKTexture *textureAtlas = [[DZSpineTexturePool sharedPool] textureAtlasWithName:atlasName];
+            
+            // Texture
+            texture = [SKTexture textureWithRect:rect inTexture:textureAtlas];
+            if (texture == nil) {
+                NSLog(@"sprite: texture missing for %s atlas:%@ rect:%@", attachment->name, atlasName, NSStringFromCGRect(rect));
+            }
+        }
+    }
+    return texture;
 }
 
 + (SKNode *) nodeWithSkeleton:(SpineSkeleton *) skeleton animations:(NSArray *) animations
                         debug:(BOOL) debug
-                          map:(NSMutableDictionary *) mapBoneToNode
-                          map:(NSMutableDictionary *) mapSlotToNode
-                          map:(NSMutableDictionary *) mapOverrideSlotToAttachment
+                         maps:(DZSpineSpriteKitMaps *) maps
                          loop:(BOOL) loop
 {
     CGPoint center = CGPointMake(0, 0 /*/2 */);
@@ -332,7 +221,7 @@ static void _spine_adapt_disposeTexture( void * rendobj );
         [root addChild:boneAnchor];
     }
     
-    [mapBoneToNode removeAllObjects];
+    [maps.mapBoneToNode removeAllObjects];
     
     // Bone tree
     SpineBone *bone = [skeleton boneWithName:@"root"];
@@ -343,59 +232,60 @@ static void _spine_adapt_disposeTexture( void * rendobj );
         root.position = center;
         
         // build children nodes
-        mapBoneToNode[@"root"] = root;
+        maps.mapBoneToNode[@"root"] = root;
         
-        [[self class] buildChildNodesForBone:bone parentNode:root animation:nil debug:debug map:mapBoneToNode];
+        [[self class] buildChildNodesForSpineBone:bone parentNode:root debug:debug map:maps.mapBoneToNode];
     }
     
-    // Attachments to Slots
-    [mapSlotToNode removeAllObjects];
-    [[skeleton slots] enumerateObjectsUsingBlock:^(SpineSlot *slot, NSUInteger idx, BOOL *stop) {
-        if ( slot.attachment ) {
-            SKNode *node = mapBoneToNode[slot.bone.name];
-            if ( node ) {
-                
-                // Texture Atlas
-                NSString *atlasName = nil;;
-                CGRect rect = slot.attachment.rectInAtlas;
-                NSDictionary *override = mapOverrideSlotToAttachment[slot.name];
-                if ( override ) {
-                    atlasName = override[@"textureName"];
-                    rect = CGRectFromString(override[@"rectInAtlas"]);
-                } else {
-                    atlasName = (__bridge NSString *) slot.attachment.rendererObject;
-                    rect = slot.attachment.rectInAtlas;
-                    // Reverse y axis
-                    rect.origin.y = 1 - rect.origin.y;
-                }
-                
-                SKTexture *textureAtlas = [[DZSpineTexturePool sharedPool] textureAtlasWithName:atlasName];
-                
-                // Texture
-                SKTexture *texture = [SKTexture textureWithRect:rect inTexture:textureAtlas];
-                SKSpriteNode *sprite = [SKSpriteNode spriteNodeWithTexture:texture];
-                [[self class] applyGeometry:slot.attachment.geometry toNode:sprite];
-                
-                // Texture Scaling at Customg Loading
-                sprite.xScale *= skeleton.scale;
-                sprite.yScale *= skeleton.scale;
-                
+    // Sprites: Slot->Attachment
+    [maps.mapSlotToNode removeAllObjects];
+    for( int i = 0; i < skeleton.spineContext->skeleton->slotCount; i++ ) {
+        spSlot *slot = skeleton.spineContext->skeleton->drawOrder[i];
+        SKNode *node;
+        SKSpriteNode *sprite;
+        const char *boneName = slot->bone->data->name;
+        if ( boneName ) {
+            node = maps.mapBoneToNode[@(boneName)];
+            if ( slot->attachment && slot->attachment->type == ATTACHMENT_REGION ) {
+                BOOL rotated = NO;
+                SKTexture *texture = [self textureForAttachment:slot->attachment rotated:&rotated map:maps.mapOverrideAttachmentToTexture];
+                sprite = [SKSpriteNode spriteNodeWithTexture:texture];
+
+                spRegionAttachment *rattach = (spRegionAttachment *) slot->attachment;
+                SpineGeometry geometry = SpineGeometryMake((rattach)->x, (rattach)->y, (rattach)->scaleX, (rattach)->scaleY, (rattach)->rotation);
+                [[self class] applyGeometry:geometry toNode:sprite];
+
                 // Texture Rotation at Custom Loading
-                if ( slot.attachment.regionRotated) {
+                if ( rotated) {
                     sprite.zRotation += -M_PI/2;
                 }
-                [node addChild:sprite];
                 
-                mapSlotToNode[slot.name] = sprite;
+            } else {
+                // Empty node for later use
+                sprite = [SKSpriteNode spriteNodeWithColor:nil size:CGSizeMake(0, 0)];
+                
             }
+            // Texture Scaling at Customg Loading
+            sprite.xScale *= skeleton.scale;
+            sprite.yScale *= skeleton.scale;
+            
+            [node addChild:sprite];
+            sprite.name = @(slot->data->name);
+            maps.mapSlotToNode[@(slot->data->name)] = sprite;
         }
-    }];
-    
-    
+    }
+
     if ( animations.count > 0) {
         // Animations
         if (  animations.count > 0) {
-            [[self class] chainAnimations:[animations copy] toNodeTree:root forBone:bone map:mapBoneToNode loop:loop];
+            DZSpineSpriteKitAnimation *skAnimation = [[DZSpineSpriteKitAnimation alloc] initWithSkeleton:skeleton maps:maps];
+            
+            // Bone Animations
+            //[skAnimation chainAnimations:[animations copy] rootBone:bone rootNode:root loop:loop];
+            [skAnimation applyBoneAnimations:animations loop:loop];
+            
+            // Slot Animations
+            [skAnimation applySlotAnimations:animations loop:loop];
         }
     }
     
@@ -413,49 +303,30 @@ static void _spine_adapt_disposeTexture( void * rendobj );
                                      scale:scale];
 }
 
-- (void) setTextureName:(NSString *) textureName rect:(CGRect) rect toSlot:(NSString *) slotName
+- (void) setTextureName:(NSString *) textureName rect:(CGRect) rect forAttachmentName:(NSString *) attachmentName
 {
-    // Override before build sprite tree
-    self.mapOverrideSlotToAttachment[slotName] = @{ @"textureName" : textureName, @"rectInAtlas" : NSStringFromCGRect(rect) };
-    
+    if ( textureName && attachmentName ) {
+        // Override before building sprite tree
+        self.maps.mapOverrideAttachmentToTexture[attachmentName] = @{ @"textureName" : textureName, @"rectInAtlas" : NSStringFromCGRect(rect) };
+    } else if ( attachmentName ) {
+        self.maps.mapOverrideAttachmentToTexture[attachmentName] = nil;
+    }
+}
+
+/*
+ * Runtime sprite texture replacement for slot name
+ */
+- (void) setTextureWithName:(NSString *)textureName rect:(CGRect)rect forSlotName:(NSString *)slotName
+{
     // Runtime sprite replacement
-    SKSpriteNode *sprite = self.mapSlotToNode[slotName];
+    SKSpriteNode *sprite = self.maps.mapSlotToNode[slotName];
     if ( sprite) {
         SKTexture *textureAtlas = [[DZSpineTexturePool sharedPool] textureAtlasWithName:textureName];
         SKTexture *texture = [SKTexture textureWithRect:rect inTexture:textureAtlas];
         sprite.texture = texture;
     }
 }
-#pragma mark - Unstable
 
-+ (CGFloat) mergeAndLoopAnimations:(NSArray *) animations toNodeTree:(SKNode *) node forBone:(SpineBone *) bone map:(NSDictionary *) mapBoneToNode loop:(BOOL) loop
-{
-    CGFloat duration = 0;
-    
-    SpineAnimation *merged = nil;
-    for( SpineAnimation *animation in animations) {
-        if (merged) {
-            merged = [merged animationByAdding:animation delay:0];
-        } else {
-            merged = animation;
-        }
-    }
-    
-    if ( merged ) {
-        duration = merged.duration;
-        
-        [[self class] applyAnimation:merged toNodeTree:node forBone:bone map:mapBoneToNode delay:0];
-        if ( loop ) {
-            SKAction *delayAction = [SKAction waitForDuration:duration];
-            [node runAction:delayAction completion:^{
-                NSLog(@"Animation done:%@", merged.name);
-                [[self class] mergeAndLoopAnimations:animations toNodeTree:node forBone:bone map:mapBoneToNode loop:loop];
-            }];
-        }
-    }
-    
-    return duration;
-}
 
 @end
 

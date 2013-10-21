@@ -16,7 +16,7 @@
 - (SKNode *) nodeWithSkeleton:(SpineSkeleton *) skeleton animationName:(NSString *) animationName loop:(BOOL)loop;
 - (SKNode *) nodeWithSkeleton:(SpineSkeleton *) skeleton animationNames:(NSArray *) animations loop:(BOOL)loop;
 - (SKNode *) nodeWithSkeleton:(SpineSkeleton *) skeleton animations:(NSArray *) animations loop:(BOOL)loop;
-- (void) setTextureName:(NSString *) textureName rect:(CGRect) rect toSlot:(NSString *) slotName;
+- (void) setTextureName:(NSString *) textureName rect:(CGRect) rect forAttachmentName:(NSString *) attachmentName;
 
 + (id) builder;
 + (SpineSkeleton *) loadSkeletonName:(NSString *) name scale:(CGFloat) scale;

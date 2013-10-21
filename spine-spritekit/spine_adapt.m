@@ -28,50 +28,56 @@ int spine_load_test(char *skeletonname, char *atlasname, float scale, char *anim
 
 int spine_load(struct spinecontext *ctx, const char *skeletonname, const char *atlasname, float scale, const char *animationName)
 {
+    int result = -1;
     spAtlas *atlas = spAtlas_readAtlasFile(atlasname);
-    
-	printf("First region name: %s, x: %d, y: %d\n", atlas->regions->name, atlas->regions->x, atlas->regions->y);
-	printf("First page name: %s, size: %d, %d\n", atlas->pages->name, atlas->pages->width, atlas->pages->height);
-    
-	spSkeletonJson *json = spSkeletonJson_create(atlas);
-    json->scale = scale;
-    
-	spSkeletonData *skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonname);
-	if (!skeletonData) {
-		printf("Error: %s\n", json->error);
-        return -1;
-	}
-    
-	printf("Default skin name: %s\n", skeletonData->defaultSkin->name);
-    
-	spSkeleton* skeleton = spSkeleton_create(skeletonData);
-    if ( animationName == 0 && skeletonData->animationCount > 0) {
-        animationName = skeletonData->animations[0]->name;
-        printf("spine: Selecting the first animation as a default:%s\n", animationName);
+    if ( atlas ) {
+        printf("First region name: %s, x: %d, y: %d\n", atlas->regions->name, atlas->regions->x, atlas->regions->y);
+        printf("First page name: %s, size: %d, %d\n", atlas->pages->name, atlas->pages->width, atlas->pages->height);
+        
+        spSkeletonJson *json = spSkeletonJson_create(atlas);
+        json->scale = scale;
+        
+        spSkeletonData *skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonname);
+        if (!skeletonData) {
+            printf("Error: %s\n", json->error);
+            return -1;
+        }
+        
+        printf("Default skin name: %s\n", skeletonData->defaultSkin->name);
+        
+        spSkeleton* skeleton = spSkeleton_create(skeletonData);
+        if ( animationName == 0 && skeletonData->animationCount > 0) {
+            animationName = skeletonData->animations[0]->name;
+            printf("spine: Selecting the first animation as a default:%s\n", animationName);
+        }
+        
+        // animation
+        spAnimation* animation = spSkeletonData_findAnimation(skeletonData, animationName);
+        if (animation) {
+            printf("Animation timelineCount: %d\n", animation->timelineCount);
+            printf("Animation duration: %2.2f\n", animation->duration);
+        } else {
+            printf("animation not found witt name:%s\n", animationName);
+            return result;
+        }
+        
+        
+        spAnimationState *state;
+        state = spAnimationState_create(spAnimationStateData_create(skeleton->data));
+        
+        spAnimationState_setAnimationByName(state, 0, animationName, 0);
+        
+        ctx->atlas = atlas;
+        ctx->json = json;
+        ctx->skeletonData = skeletonData;
+        ctx->skeleton = skeleton;
+        ctx->state = state;
+        result = 0;
+    } else {
+        printf("spine: error opening atlas:%s\n", atlasname);
+        
     }
-
-    // animation
-	spAnimation* animation = spSkeletonData_findAnimation(skeletonData, animationName);
-	if (animation) {
-        printf("Animation timelineCount: %d\n", animation->timelineCount);
-        printf("Animation duration: %2.2f\n", animation->duration);
-	} else {
-        return -1;
-    }
-    
-    
-    spAnimationState *state;
-	state = spAnimationState_create(spAnimationStateData_create(skeleton->data));
-    
-	spAnimationState_setAnimationByName(state, 0, animationName, 0);
-    
-	ctx->atlas = atlas;
-    ctx->json = json;
-    ctx->skeletonData = skeletonData;
-    ctx->skeleton = skeleton;
-    ctx->state = state;
-    
-	return 0;
+	return result;
 }
 
 int spine_dump_animation(struct spinecontext *ctx, const char *animationName)
@@ -187,25 +193,34 @@ void spine_set_handler_disposetexture(spine_adapt_disposetexture_t handler)
     _callback_disposeTexture = handler;
 }
 
+CGRect spine_uvs2rect(float *uvs, BOOL *protated)
+{
+    CGRect region;
+    if ( (uvs[VERTEX_X3] - uvs[VERTEX_X2]) == 0 ) {
+        region.origin = CGPointMake(uvs[VERTEX_X2], uvs[VERTEX_Y2]);    // bottom-left
+        region.size = CGSizeMake((uvs[VERTEX_X4] - uvs[VERTEX_X3]),(uvs[VERTEX_Y1] - uvs[VERTEX_Y4]));
+        *protated = YES;
+    } else {
+        region.origin = CGPointMake(uvs[VERTEX_X1], uvs[VERTEX_Y1]);    // bottom-left
+        region.size = CGSizeMake((uvs[VERTEX_X3] - uvs[VERTEX_X2]),(uvs[VERTEX_Y1] - uvs[VERTEX_Y2]));
+        *protated = NO;
+    }
+    return region;
+}
+
 #pragma mark - Spine Resource Loading Test
 
 void spine_logUVS( float *uvs, int atlas_width, int atlas_height)
 {
-    // bl, tl, tr, br
-    // or br, bl, tl, tr if rotated
-    //    CGPoint tl = CGPointMake(uvs[VERTEX_X2], uvs[VERTEX_Y2]);
-    //    CGPoint bl = CGPointMake(uvs[VERTEX_X1], uvs[VERTEX_Y1]);
-    //    CGPoint tr = CGPointMake(uvs[VERTEX_X3], uvs[VERTEX_Y3]);
-    //    CGPoint br = CGPointMake(uvs[VERTEX_X4], uvs[VERTEX_Y4]);
-    CGRect rect;
-    if ( uvs[VERTEX_X3] - uvs[VERTEX_X2] == 0) {
-        // rotated
-        rect.origin = CGPointMake(uvs[VERTEX_X3] * atlas_width, uvs[VERTEX_Y3] * atlas_height);
-        rect.size = CGSizeMake((uvs[VERTEX_X1] - uvs[VERTEX_X2]) * atlas_width, (uvs[VERTEX_Y2] - uvs[VERTEX_Y3]) * atlas_height);
-    } else {
-        rect.origin = CGPointMake(uvs[VERTEX_X2] * atlas_width, uvs[VERTEX_Y2] * atlas_height);
-        rect.size = CGSizeMake((uvs[VERTEX_X3] - uvs[VERTEX_X2]) * atlas_width, (uvs[VERTEX_Y1] - uvs[VERTEX_Y2]) * atlas_height);
-    }
-    NSLog(@"%@", NSStringFromCGRect(rect));
+
+    BOOL rotated = NO;
+    CGRect rect = spine_uvs2rect(uvs, &rotated);
+
+    rect.origin.x *= atlas_width;
+    rect.origin.y *= atlas_height;
+    rect.size.width *= atlas_width;
+    rect.size.height *= atlas_height;
+    
+    NSLog(@"%@ rotated:%@", NSStringFromCGRect(rect), rotated ? @"YES" : @"NO");
 }
 

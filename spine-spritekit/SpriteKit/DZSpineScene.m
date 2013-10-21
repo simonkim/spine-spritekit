@@ -92,9 +92,9 @@
 }
 
 #pragma mark -
-- (void) setTextureName:(NSString *) textureName rect:(CGRect) rect toSlot:(NSString *) slotName
+- (void) setTextureName:(NSString *) textureName rect:(CGRect) rect forAttachmentName:(NSString *)attachmentName
 {
-    [self.builder setTextureName:textureName rect:rect toSlot:slotName];
+    [self.builder setTextureName:textureName rect:rect forAttachmentName:attachmentName];
 }
 
 #pragma mark - Misc.

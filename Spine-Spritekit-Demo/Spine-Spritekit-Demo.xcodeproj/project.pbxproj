@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F42C15181814058500A61F6A /* DZSpineSpriteKitAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = F42C15171814058500A61F6A /* DZSpineSpriteKitAnimation.m */; };
+		F42C151B1814059100A61F6A /* DZSpineSpriteKitMaps.m in Sources */ = {isa = PBXBuildFile; fileRef = F42C151A1814059100A61F6A /* DZSpineSpriteKitMaps.m */; };
 		F45213F8180A41D100D8BD26 /* goblinhead4spineboy.png in Resources */ = {isa = PBXBuildFile; fileRef = F45213F7180A41D100D8BD26 /* goblinhead4spineboy.png */; };
 		F4957456180BFB8B00EA94E0 /* DZSpineSceneBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = F495744F180BFB8B00EA94E0 /* DZSpineSceneBuilder.m */; };
 		F4957457180BFB8B00EA94E0 /* DZSpineSceneDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = F4957451180BFB8B00EA94E0 /* DZSpineSceneDescription.m */; };
@@ -81,6 +83,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F42C15161814058500A61F6A /* DZSpineSpriteKitAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineSpriteKitAnimation.h; sourceTree = "<group>"; };
+		F42C15171814058500A61F6A /* DZSpineSpriteKitAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineSpriteKitAnimation.m; sourceTree = "<group>"; };
+		F42C15191814059100A61F6A /* DZSpineSpriteKitMaps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineSpriteKitMaps.h; sourceTree = "<group>"; };
+		F42C151A1814059100A61F6A /* DZSpineSpriteKitMaps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineSpriteKitMaps.m; sourceTree = "<group>"; };
 		F45213F7180A41D100D8BD26 /* goblinhead4spineboy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = goblinhead4spineboy.png; sourceTree = "<group>"; };
 		F495744E180BFB8B00EA94E0 /* DZSpineSceneBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DZSpineSceneBuilder.h; sourceTree = "<group>"; };
 		F495744F180BFB8B00EA94E0 /* DZSpineSceneBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DZSpineSceneBuilder.m; sourceTree = "<group>"; };
@@ -336,6 +342,10 @@
 				F4F8DC6F1808175500F2C744 /* DZSpineScene.m */,
 				F495744E180BFB8B00EA94E0 /* DZSpineSceneBuilder.h */,
 				F495744F180BFB8B00EA94E0 /* DZSpineSceneBuilder.m */,
+				F42C15161814058500A61F6A /* DZSpineSpriteKitAnimation.h */,
+				F42C15171814058500A61F6A /* DZSpineSpriteKitAnimation.m */,
+				F42C15191814059100A61F6A /* DZSpineSpriteKitMaps.h */,
+				F42C151A1814059100A61F6A /* DZSpineSpriteKitMaps.m */,
 				F4957450180BFB8B00EA94E0 /* DZSpineSceneDescription.h */,
 				F4957451180BFB8B00EA94E0 /* DZSpineSceneDescription.m */,
 				F4957452180BFB8B00EA94E0 /* DZSpineSceneTrack.h */,
@@ -562,6 +572,7 @@
 				F4F8DC701808175500F2C744 /* DZSpineLoader.m in Sources */,
 				F4957457180BFB8B00EA94E0 /* DZSpineSceneDescription.m in Sources */,
 				F4F8DC7A1808175500F2C744 /* SpineTimeline.m in Sources */,
+				F42C151B1814059100A61F6A /* DZSpineSpriteKitMaps.m in Sources */,
 				F4F8DC751808175500F2C744 /* SpineBone.m in Sources */,
 				F4957456180BFB8B00EA94E0 /* DZSpineSceneBuilder.m in Sources */,
 				F4F8DC771808175500F2C744 /* SpineSequence.m in Sources */,
@@ -589,6 +600,7 @@
 				F4F8DCDF1808176700F2C744 /* SkeletonJson.c in Sources */,
 				F4F8DA8918080E1200F2C744 /* DZViewController.m in Sources */,
 				F4F8DCD21808176700F2C744 /* Attachment.c in Sources */,
+				F42C15181814058500A61F6A /* DZSpineSpriteKitAnimation.m in Sources */,
 				F4F8DCDA1808176700F2C744 /* Json.c in Sources */,
 				F4F8DC7B1808175500F2C744 /* DZSpineScene.m in Sources */,
 				F4F8DA7C18080E1200F2C744 /* main.m in Sources */,

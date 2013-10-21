@@ -30,4 +30,6 @@ int spine_load_test(char *skeletonname, char *atlasname, float scale, char *anim
 void spine_logUVS( float *uvs, int atlas_width, int atlas_height);
 void spine_set_handler_createtexture(spine_adapt_createtexture_t handler);
 void spine_set_handler_disposetexture(spine_adapt_disposetexture_t handler);
+CGRect spine_uvs2rect(float *uvs, BOOL *protated);
+
 #endif

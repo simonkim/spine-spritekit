@@ -40,12 +40,12 @@
 - (void) addTrackRaw:(NSDictionary *) raw
 {
     /*
-    @{ @"skeleton" : @"butterfly",
-       @"scale" : @(0.3),
-       @"position" : NSStringFromCGPoint(CGPointMake(200, -200)),
-       @"animations" : @[ @{@"name" : @"animation"}, @{@"delay" : @(0.3)}, @{@"name" : @"butterfly2"}, @{@"delay" : @(0.3)}, @{@"name" : @"butterfly3"} ],
-       @"loop" : @(YES),
-       @"wait" : @(YES) },
+    @{ @"skeleton" : @"<skeleton name>" |<SpineSkeleton object>,
+       @"scale" : <float:0~1.0>,
+       @"position" : @"<NSStringFromCGPoint(CGPount)>",
+       @"animations" : @[ @{@"name" : @"<animation name>"}, @{@"delay" : <float:seconds>},...],
+       @"loop" : <BOOL>,
+       @"wait" : <BOOL> },
      */
     [self.tracks addObject:raw];
 }
@@ -53,10 +53,10 @@
 - (void) addCustomTextureRaw:(NSDictionary *) raw
 {
 /*
- @{ @"skeleton" : @"lion",
- @"textureName" : @"lion_custom_head1",
- @"rect" : NSStringFromCGRect(CGRectMake(0, 0, 1, 1)),
- @"slot" : @"Lion_Sqnc1_head"},
+ @{ @"skeleton" : @"<skeleton name>",
+ @"textureName" : @"<texture bundle image name>",
+ @"rect" : @"<NSStringFromCGRect(CGRect)>",
+ @"attachment" : @"<attachment name>"},
  
  */
     [self.textures addObject:raw];
@@ -74,7 +74,11 @@
         if (texture[@"rect"]) {
             rect = CGRectFromString(texture[@"rect"]);
         }
-        [builder setTextureName:texture[@"textureName"] rect:rect toSlot:texture[@"slot"]];
+        if ( texture[@"attachment"]  ) {
+            [builder setTextureName:texture[@"textureName"] rect:rect forAttachmentName:texture[@"attachment"]];
+        } else {
+            NSLog(@"Ignoring invalid attachment override:%@", texture);
+        }
     }];
 
     node = [builder nodeWithSkeleton:skeleton animations:animations loop:loop];
@@ -126,26 +130,35 @@
         DZSpineSceneTrack *track = [[DZSpineSceneTrack alloc] init];
         track.loop = [trackRaw[@"loop"] boolValue];
         track.wait = [trackRaw[@"wait"] boolValue];
-        track.skeletonName = trackRaw[@"skeleton"];
+        id skeleton = trackRaw[@"skeleton"];
         track.position = CGPointMake(0, 0);
-        CGFloat scale = 1;
-        
-        if ( trackRaw[@"scale"]) {
-            scale = [trackRaw[@"scale"] floatValue];
-        }
         
         if ( trackRaw[@"position"]) {
             track.position = CGPointFromString(trackRaw[@"position"]);
         }
         NSArray *animationDescs = trackRaw[@"animations"];
-        
-        track.skeleton = [DZSpineSceneBuilder loadSkeletonName:track.skeletonName scale:scale];
-        CGFloat duration = 0;
-        NSLog(@"Track Skeleton:%@", track.skeletonName);
-        track.animations = [[self class] extractAnimationsFromDescs:animationDescs skeleton:track.skeleton duration:&duration];
-        maxDuration = MAX(maxDuration, duration);
-        track.duration = duration;
-        [trackObjs addObject:track];
+
+        if ([skeleton isKindOfClass:[NSString class]]) {
+            CGFloat scale = 1;
+            if ( trackRaw[@"scale"]) {
+                scale = [trackRaw[@"scale"] floatValue];
+            }
+            
+            track.skeletonName = (NSString *) skeleton;
+            track.skeleton = [DZSpineSceneBuilder loadSkeletonName:track.skeletonName scale:scale];
+        } else if ( [skeleton isKindOfClass:[SpineSkeleton class]]) {
+            track.skeleton = skeleton;
+            track.skeletonName = [skeleton name];
+        }
+
+        if ( track.skeleton ) {
+            CGFloat duration = 0;
+            NSLog(@"Track Skeleton:%@", track.skeletonName);
+            track.animations = [[self class] extractAnimationsFromDescs:animationDescs skeleton:track.skeleton duration:&duration];
+            maxDuration = MAX(maxDuration, duration);
+            track.duration = duration;
+            [trackObjs addObject:track];
+        }
     }
 
     for (DZSpineSceneTrack *track in trackObjs) {

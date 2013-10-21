@@ -15,12 +15,10 @@
     id result = [[[self class] alloc] init];
     [result setName:@(slot->data->name)];
     [result setBone:[SpineBone boneWithCBone:slot->bone]];
-    if ( slot->attachment) {
-        if (slot->attachment->type == ATTACHMENT_REGION ) {
-            [result setAttachment:[SpineAttachment attachmentWithCAttachment:slot->attachment]];
-        } else {
-            NSLog(@"Unsupported attachment type:%d for slot:%@", slot->attachment->type, [result name]);
-        }
+    if ( slot->attachment && slot->attachment->type == ATTACHMENT_REGION) {
+        [result setAttachment:[SpineAttachment attachmentWithCAttachment:slot->attachment]];
+    } else if ( slot->attachment ) {
+        NSLog(@"Unsupported attachment type:%d for slot:%@", slot->attachment->type, [result name]);
     }
     
     return result;
