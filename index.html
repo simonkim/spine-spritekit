@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Spine-spritekit : Unofficial Spine 2D Runtime for iOS 7 SpriteKit" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Spine-spritekit</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/simonkim/spine-spritekit">View on GitHub</a>
+
+          <h1 id="project_title">Spine-spritekit</h1>
+          <h2 id="project_tagline">Unofficial Spine 2D Runtime for iOS 7 SpriteKit</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/simonkim/spine-spritekit/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/simonkim/spine-spritekit/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>I wrote a quick code for my own project that uses Spine 2D Skeletal Animation Tool (<a href="http://esotericsoftware.com">http://esotericsoftware.com</a>) and iOS 7 SpriteKit for my own project. Though it does not fully support all the features of Spine 2D, it basically,</p>
+
+<ul>
+<li>Places Bones and Skot Attachments on SKScene (SpriteKit Scene object)</li>
+<li>Animates Bone and Texture (Slot Attachment) Timelines using SKAction for translate, rotate, scale and texture sequences</li>
+<li>Allows you to change the skin of a Skeleton before animation starts</li>
+</ul><p>Official runtimes are here: <a href="http://esotericsoftware.com/spine-runtimes">http://esotericsoftware.com/spine-runtimes</a></p>
+
+<p>Until the official release of SpriteKit Runtime from Esoteric software, hope it's a quick starter for your projects if you are considering use of Spine and SpriteKit at the same time.</p>
+
+<p>Feel free to fork and send pull requests!</p>
+
+<p><em>simon</em></p>
+
+<p><img src="https://raw.github.com/simonkim/spine-spritekit/43396b75aa283d6cc7fe6a2bfc9e53a7f6f375ee/Screenshots/iPhone.png" alt="Screenshot - iPhone"></p>
+
+<h2>
+<a name="usage-examples" class="anchor" href="#usage-examples"><span class="octicon octicon-link"></span></a>Usage Examples</h2>
+
+<h3>
+<a name="simple" class="anchor" href="#simple"><span class="octicon octicon-link"></span></a>Simple</h3>
+
+<pre>
++ (SKScene *) buildSpineboyLoopWithSize:(CGSize) size
+{
+    SKScene *scene = [[SKScene alloc] initWithSize:size];
+    scene.scaleMode = SKSceneScaleModeAspectFill;
+    scene.backgroundColor = [UIColor whiteColor];
+    
+    SpineSkeleton *skeleton = [DZSpineSceneBuilder loadSkeletonName:@"spineboy" scale:1];
+    DZSpineSceneBuilder *builder = [DZSpineSceneBuilder builder];
+    SKNode *node = [builder nodeWithSkeleton:skeleton animationNames:@[@"walk", @"jump", @"walk"] loop:YES];
+
+    // place holder node for position adjustment
+    SKNode *placeHolder = [SKNode node];
+    placeHolder.position = CGPointMake(size.width /2, size.height /3);
+    [placeHolder addChild:node];
+    [scene addChild:placeHolder];
+    
+    return scene;
+}
+</pre>
+
+<h3>
+<a name="two-skeletons" class="anchor" href="#two-skeletons"><span class="octicon octicon-link"></span></a>Two Skeletons</h3>
+
+<pre>
++ (SKScene *) buildComplexSceneWithSize:(CGSize) size
+{
+    SpineSkeleton *goblin = [DZSpineSceneBuilder loadSkeletonName:@"goblins" scale:1];
+    
+    // skin: "goblingirl"
+    spSkeleton_setSkinByName(goblin.spineContext-&gt;skeleton, "goblingirl");
+    spSkeleton_setSlotsToSetupPose(goblin.spineContext-&gt;skeleton);
+    
+    DZSpineSceneDescription *sceneDesc = [DZSpineSceneDescription description];
+    
+    NSArray *tracks = @[
+                        // spineboy
+                        @{ @"skeleton" : @"spineboy",
+                           @"scale" : @(1),
+                           @"position" : NSStringFromCGPoint(CGPointMake(-80, -100)),
+                           @"animations" : @[
+                                            @{@"name" : @"walk"},
+                                            @{@"name" : @"walk"},
+                                            @{@"name" : @"jump"},
+                                            @{@"name" : @"walk"},
+                                            @{@"name" : @"jump"},
+                                            @{@"delayUntil" : @(8)},
+                                            @{@"name" : @"jump"},
+                                            @{@"name" : @"walk"}],
+                           @"loop" : @(YES),
+                           @"wait" : @(YES) },
+
+                        // goblin
+                        @{ @"skeleton" : goblin,
+                           @"scale" : @(0.8),
+                           @"position" : NSStringFromCGPoint(CGPointMake(30, -200)),
+                           @"animations" : @[
+                                                @{@"name" : @"walk"},
+                                                @{@"name" : @"walk"},
+                                                @{@"name" : @"walk"},
+                                              @{@"delayUntil" : @(8)},
+                                              @{@"name" : @"walk"},
+                                                @{@"name" : @"walk"},
+                                              ],
+                           @"loop" : @(YES),
+                           @"wait" : @(YES) },];
+    
+    
+    [tracks enumerateObjectsUsingBlock:^(NSDictionary *track, NSUInteger idx, BOOL *stop) {
+        [sceneDesc addTrackRaw: track];
+    }];
+    
+    NSArray *textures = @[@{ @"skeleton" : @"spineboy",
+                             @"textureName" : @"goblinhead4spineboy",
+                             @"attachment" : @"head"}];
+    [textures enumerateObjectsUsingBlock:^(NSDictionary *texture, NSUInteger idx, BOOL *stop) {
+        [sceneDesc addCustomTextureRaw: texture];
+    }];
+    
+    
+    NSArray *nodes = [sceneDesc buildScene];
+    
+    SKNode *placeHolder = [SKNode node];
+    placeHolder.position = CGPointMake(size.width /2, size.height /2);
+    
+    // Give zPosition to each character so they don't mix sprites in draw orders
+    CGFloat __block zPosition = 1000;
+    [nodes enumerateObjectsUsingBlock:^(SKNode *node, NSUInteger idx, BOOL *stop) {
+        node.zPosition = zPosition;
+        [placeHolder addChild:node];
+        zPosition += 100;
+    }];
+    
+    SKScene *scene = [[SKScene alloc] initWithSize:size];
+    scene.scaleMode = SKSceneScaleModeAspectFill;
+    scene.backgroundColor = [UIColor whiteColor];
+    
+    [scene addChild:placeHolder];
+    return scene;
+}
+</pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Spine-spritekit maintained by <a href="https://github.com/simonkim">simonkim</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
