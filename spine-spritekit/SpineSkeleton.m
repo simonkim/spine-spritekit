@@ -166,10 +166,10 @@
 
 + (id) skeletonWithName:(NSString *) name atlasName:(NSString *) atlasName scale:(CGFloat) scale
 {
-    id skeleton = [DZSpineLoader skeletonWithName:name atlasName:atlasName scale:scale animationName:nil];
+    SpineSkeleton *skeleton = [DZSpineLoader skeletonWithName:name atlasName:atlasName scale:scale animationName:nil];
     if ( skeleton ) {
-        [skeleton setName:name];
-        [skeleton setScale:scale];
+        skeleton.name = name;
+        skeleton.scale = scale;
     }
     return skeleton;
 }
